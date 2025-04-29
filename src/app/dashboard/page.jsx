@@ -6,7 +6,8 @@ import {
   createQuestion,
   updateQuestion,
   deleteQuestion,
-} from "../../../../lib/service";
+} from "../../../lib/service";
+import { signOut } from "next-auth/react";
 
 const AdminDashboard = () => {
   const [questions, setQuestions] = useState([]);
@@ -130,6 +131,22 @@ const AdminDashboard = () => {
 
   return (
     <div>
+      <button
+        onClick={() => signOut({ callbackUrl: "/login" })}
+        style={{
+          position: "absolute",
+          top: 10,
+          right: 10,
+          padding: "0.5rem 1rem",
+          backgroundColor: "#f44336",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+        }}
+      >
+        Sign Out
+      </button>
       <h1>Admin Dashboard</h1>
 
       {error && (
