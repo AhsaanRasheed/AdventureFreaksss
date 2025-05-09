@@ -1,3 +1,8 @@
-export default function Admin() {
-    return <h1>Admin auth Page</h1>;
-  }
+
+import AdminLogin from "./login-page";
+
+export default function Login() {
+  return(
+    <AdminLogin/>
+  )
+}

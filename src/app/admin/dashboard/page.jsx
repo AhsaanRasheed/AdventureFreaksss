@@ -1,3 +1,10 @@
-export default function Dashboard() {
-    return <h1>Dashboard Page</h1>;
-  }
+import AuthGuard from "../auth-guard";
+import AdminQuizEditor from "./quiz-editor";
+
+export default function AdminPage() {
+  return (
+    <AuthGuard>
+      <AdminQuizEditor />
+    </AuthGuard>
+  )
+}
