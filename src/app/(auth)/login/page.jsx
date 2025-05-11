@@ -4,7 +4,8 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import "./styles.css"
 import Image from "next/image"
-import logo from "../assets/logo.png"
+import logo from "../../assets/logo.png"
+import { signIn } from 'next-auth/react';
 
 export default function AdminLogin() {
     const router = useRouter()
@@ -13,19 +14,8 @@ export default function AdminLogin() {
     const [errors, setErrors] = useState({})
     const [isLoading, setIsLoading] = useState(false)
     const [loginError, setLoginError] = useState("")
-    const [checkingAuth, setCheckingAuth] = useState(true)
   
-    // Check if already logged in
-    useEffect(() => {
-      setCheckingAuth(true)
-      const isAuthenticated = localStorage.getItem("adminAuthenticated")
-  
-      if (isAuthenticated === "true") {
-        router.push("/admin/dashboard")
-      } else {
-        setCheckingAuth(false)
-      }
-    }, [router])
+    
   
     const validateForm = () => {
       const newErrors = {}
@@ -48,6 +38,7 @@ export default function AdminLogin() {
       return Object.keys(newErrors).length === 0
     }
   
+
     const handleSubmit = (e) => {
       e.preventDefault()
       setLoginError("")
@@ -55,27 +46,22 @@ export default function AdminLogin() {
       if (validateForm()) {
         setIsLoading(true)
   
-        setTimeout(() => {
-          if (email === "admin@example.com" && password === "password123") {
-            localStorage.setItem("adminAuthenticated", "true")
-            localStorage.setItem("adminEmail", email)
-            router.push("/admin/dashboard")
-          } else {
-            setLoginError("Invalid email or password")
-            setIsLoading(false)
-          }
+        setTimeout( async() => {
+          const res = await signIn('credentials', {
+            redirect: false,
+            email,
+            password,
+          });
+    
+        if (res.error) {
+          setLoginError('Invalid credentials');
+        } else {
+          router.push('/admin/dashboard'); // adjust this if your dashboard is at a different route
+        }
         }, 1000)
       }
     }
   
-    if (checkingAuth) {
-      return (
-        <div className="auth-loading">
-          <div className="spinner"></div>
-          <p>Checking authentication status...</p>
-        </div>
-      )
-    }
   
     return (
       <div className="admin-login-container">
@@ -120,12 +106,6 @@ export default function AdminLogin() {
               {isLoading ? "Signing in..." : "Sign In"}
             </button>
           </form>
-  
-          <div className="login-help">
-            <p>Demo credentials:</p>
-            <p>Email: admin@example.com</p>
-            <p>Password: password123</p>
-          </div>
         </div>
   
         <div className="admin-login-footer">

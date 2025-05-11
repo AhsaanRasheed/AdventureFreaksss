@@ -8,6 +8,8 @@ import "../../globals.css"
 import Image from "next/image"
 import logo from "../../assets/logo.png"
 
+import { signOut } from "next-auth/react";
+
 export default function AdminQuizEditor() {
   const router = useRouter()
   const questionListRef = useRef(null)
@@ -310,19 +312,6 @@ export default function AdminQuizEditor() {
     }
   }, [currentQuestionIndex, questions])
 
-  const handleLogout = () => {
-    if (isEditing && hasUnsavedChanges) {
-      if (confirm("You have unsaved changes. Are you sure you want to logout?")) {
-        localStorage.removeItem("adminAuthenticated")
-        localStorage.removeItem("adminEmail")
-        router.push("/admin")
-      }
-    } else {
-      localStorage.removeItem("adminAuthenticated")
-      localStorage.removeItem("adminEmail")
-      router.push("/admin")
-    }
-  }
 
   // Handle scrolling to the current question in the sidebar
   useEffect(() => {
@@ -590,7 +579,7 @@ export default function AdminQuizEditor() {
         <div className="admin-actions">
           <div className="admin-user-info">
             <span className="admin-email">{adminEmail}</span>
-            <button className="logout-button" onClick={handleLogout}>
+            <button className="logout-button" onClick={ () => signOut({ callbackUrl: "/login" })}>
               Logout
             </button>
           </div>
