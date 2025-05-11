@@ -24,12 +24,10 @@ export default function PaymentScreen() {
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [paymentStatus, setPaymentStatus] = useState("processing") // processing, success, error
 
-  // Handle payment method selection
   const handlePaymentMethodChange = (method) => {
     setPaymentMethod(method)
   }
 
-  // Handle form input changes
   const handleInputChange = (e) => {
     const { id, value } = e.target
     setFormData({
@@ -38,17 +36,13 @@ export default function PaymentScreen() {
     })
   }
 
-  // Handle payment submission
   const handlePayNow = () => {
-    // Show payment processing modal
     setShowPaymentModal(true)
     setPaymentStatus("processing")
 
-    // Simulate payment processing
     setTimeout(() => {
       setPaymentStatus("success")
 
-      // Navigate to results page after showing success message
       setTimeout(() => {
         router.push("/suggestions")
       }, 2000)

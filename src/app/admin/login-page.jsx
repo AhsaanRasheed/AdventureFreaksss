@@ -23,7 +23,6 @@ export default function AdminLogin() {
       if (isAuthenticated === "true") {
         router.push("/admin/dashboard")
       } else {
-        // Only set checkingAuth to false if not authenticated
         setCheckingAuth(false)
       }
     }, [router])
@@ -56,10 +55,7 @@ export default function AdminLogin() {
       if (validateForm()) {
         setIsLoading(true)
   
-        // Simulate API call with timeout
         setTimeout(() => {
-          // For demo purposes, hardcoded credentials
-          // In a real app, this would be an API call to verify credentials
           if (email === "admin@example.com" && password === "password123") {
             localStorage.setItem("adminAuthenticated", "true")
             localStorage.setItem("adminEmail", email)
@@ -72,7 +68,6 @@ export default function AdminLogin() {
       }
     }
   
-    // Show loading spinner while checking authentication
     if (checkingAuth) {
       return (
         <div className="auth-loading">

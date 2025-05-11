@@ -45,40 +45,28 @@ export default function ResultsPage() {
     ])
   
     useEffect(() => {
-      // Get user answers from localStorage
       const savedAnswers = localStorage.getItem("quizAnswers")
       const savedOtherInputs = localStorage.getItem("quizOtherInputs")
   
       if (savedAnswers) {
         setUserAnswers(JSON.parse(savedAnswers))
       }
-  
-      // In a real app, you would use the answers to generate personalized destinations
-      // For now, we'll just use the default destinations
     }, [])
   
     const handleTakeScreenshot = async () => {
       try {
-        // Check if the browser supports the necessary APIs
         if (!navigator.clipboard || !window.html2canvas) {
           alert("Your browser doesn't support taking screenshots. Please try a different browser.")
           return
         }
   
-        // Use html2canvas to capture the results section
         const canvas = await window.html2canvas(resultsRef.current)
         
-        // Convert canvas to blob
         canvas.toBlob(async (blob) => {
           try {
-            // Create a ClipboardItem and write to clipboard
             const item = new ClipboardItem({ "image/png": blob })
             await navigator.clipboard.write([item])
-            
-            // Show success message
             setShowSnackbar(true)
-            
-            // Hide snackbar after 3 seconds
             setTimeout(() => {
               setShowSnackbar(false)
             }, 3000)

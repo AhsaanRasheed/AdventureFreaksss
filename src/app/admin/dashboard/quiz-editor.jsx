@@ -7,7 +7,6 @@ import "../../globals.css"
 
 import Image from "next/image"
 import logo from "../../assets/logo.png"
-import AuthGuard from "../auth-guard"
 
 export default function AdminQuizEditor() {
   const router = useRouter()
@@ -15,7 +14,6 @@ export default function AdminQuizEditor() {
   const questionItemRefs = useRef({})
   const [adminEmail, setAdminEmail] = useState("")
 
-  // State for the quiz questions
   const [questions, setQuestions] = useState([
     {
       id: 1,
@@ -285,7 +283,6 @@ export default function AdminQuizEditor() {
     },
   ])
 
-  // Get admin email on component mount
   useEffect(() => {
     const email = localStorage.getItem("adminEmail")
     if (email) {
@@ -293,10 +290,8 @@ export default function AdminQuizEditor() {
     }
   }, [])
 
-  // Current question index
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
 
-  // State for editing
   const [isEditing, setIsEditing] = useState(false)
   const [editingQuestion, setEditingQuestion] = useState(null)
   const [showSaveNotification, setShowSaveNotification] = useState(false)
@@ -315,7 +310,6 @@ export default function AdminQuizEditor() {
     }
   }, [currentQuestionIndex, questions])
 
-  // Handle logout
   const handleLogout = () => {
     if (isEditing && hasUnsavedChanges) {
       if (confirm("You have unsaved changes. Are you sure you want to logout?")) {
@@ -336,7 +330,6 @@ export default function AdminQuizEditor() {
       const listElement = questionListRef.current
       const questionElement = questionItemRefs.current[currentQuestionIndex]
 
-      // Check if we're in mobile view (horizontal scroll)
       const isMobileView = window.innerWidth <= 768
 
       if (isMobileView) {
@@ -360,15 +353,8 @@ export default function AdminQuizEditor() {
         // For vertical scrolling (desktop)
         const listHeight = listElement.clientHeight
         const questionHeight = questionElement.offsetHeight
-
-        // Calculate how many questions can fit in the viewport
         const questionsPerViewport = Math.floor(listHeight / questionHeight)
-
-        // We want to ensure the current question and the next 2 questions are visible
-        // If we're near the end of the list, we need to adjust the scroll position
         if (currentQuestionIndex > 0) {
-          // Calculate the ideal position: current question should be at the top
-          // with enough space to show the next 2 questions
           const targetIndex = Math.max(0, currentQuestionIndex - 1)
           const targetElement = questionItemRefs.current[targetIndex]
 
@@ -385,10 +371,8 @@ export default function AdminQuizEditor() {
     }
   }, [currentQuestionIndex])
 
-  // Current question
   const currentQuestion = questions[currentQuestionIndex]
 
-  // Modify the goToQuestion function to check for unsaved changes
   const goToQuestion = (index) => {
     if (index >= 0 && index < questions.length) {
       if (isEditing && hasUnsavedChanges) {
@@ -400,12 +384,10 @@ export default function AdminQuizEditor() {
     }
   }
 
-  // Start editing the current question
   const handleStartEditing = () => {
     setIsEditing(true)
   }
 
-  // Add a function to handle discard confirmation
   const handleDiscardChanges = () => {
     setIsEditing(false)
     setHasUnsavedChanges(false)
@@ -416,25 +398,21 @@ export default function AdminQuizEditor() {
     }
   }
 
-  // Add a function to cancel discard
   const handleCancelDiscard = () => {
     setShowDiscardDialog(false)
     setPendingQuestionIndex(null)
   }
 
-  // Modify the handleCancelEditing function to reset unsaved changes
   const handleCancelEditing = () => {
     setEditingQuestion(JSON.parse(JSON.stringify(questions[currentQuestionIndex])))
     setIsEditing(false)
     setHasUnsavedChanges(false)
   }
 
-  // Modify the handleSaveQuestion function to show confirmation
   const handleSaveQuestion = () => {
     setShowSaveConfirmDialog(true)
   }
 
-  // Add a function to confirm save
   const handleConfirmSave = () => {
     const updatedQuestions = [...questions]
     updatedQuestions[currentQuestionIndex] = { ...editingQuestion }
@@ -443,19 +421,16 @@ export default function AdminQuizEditor() {
     setHasUnsavedChanges(false)
     setShowSaveConfirmDialog(false)
 
-    // Show save notification
     setShowSaveNotification(true)
     setTimeout(() => {
       setShowSaveNotification(false)
     }, 3000)
   }
 
-  // Add a function to cancel save
   const handleCancelSave = () => {
     setShowSaveConfirmDialog(false)
   }
 
-  // Modify the handleQuestionTextChange function to track changes
   const handleQuestionTextChange = (e) => {
     setEditingQuestion({
       ...editingQuestion,
@@ -464,7 +439,6 @@ export default function AdminQuizEditor() {
     setHasUnsavedChanges(true)
   }
 
-  // Modify the handleOptionTextChange function to track changes
   const handleOptionTextChange = (optionIndex, e) => {
     const updatedOptions = [...editingQuestion.options]
     updatedOptions[optionIndex] = {
@@ -479,20 +453,16 @@ export default function AdminQuizEditor() {
     setHasUnsavedChanges(true)
   }
 
-  // Modify the handleAddOption function to track changes
   const handleAddOption = () => {
-    // Generate the next option ID (A, B, C, ... Z, AA, AB, etc.)
     const getNextOptionId = () => {
       const lastOption = editingQuestion.options[editingQuestion.options.length - 1]
       if (!lastOption) return "A"
 
       const lastId = lastOption.id
-      // If it's a single character
       if (lastId.length === 1) {
         if (lastId === "Z") return "AA"
         return String.fromCharCode(lastId.charCodeAt(0) + 1)
       }
-      // If it's two characters
       const firstChar = lastId.charAt(0)
       const secondChar = lastId.charAt(1)
       if (secondChar === "Z") {
@@ -513,7 +483,6 @@ export default function AdminQuizEditor() {
     setHasUnsavedChanges(true)
   }
 
-  // Modify the handleRemoveOption function to track changes
   const handleRemoveOption = (optionIndex) => {
     const updatedOptions = [...editingQuestion.options]
     updatedOptions.splice(optionIndex, 1)
@@ -525,7 +494,6 @@ export default function AdminQuizEditor() {
     setHasUnsavedChanges(true)
   }
 
-  // Modify the handleToggleMultiSelect function to track changes
   const handleToggleMultiSelect = () => {
     setEditingQuestion({
       ...editingQuestion,
@@ -534,7 +502,6 @@ export default function AdminQuizEditor() {
     setHasUnsavedChanges(true)
   }
 
-  // Modify the handleToggleOtherField function to track changes
   const handleToggleOtherField = () => {
     setEditingQuestion({
       ...editingQuestion,
@@ -543,7 +510,6 @@ export default function AdminQuizEditor() {
     setHasUnsavedChanges(true)
   }
 
-  // Add a new question
   const handleAddQuestion = () => {
     const newQuestionId = questions.length > 0 ? Math.max(...questions.map((q) => q.id)) + 1 : 1
 
@@ -564,7 +530,6 @@ export default function AdminQuizEditor() {
     setCurrentQuestionIndex(updatedQuestions.length - 1)
   }
 
-  // Delete the current question
   const handleDeleteQuestion = () => {
     if (questions.length <= 1) {
       alert("You cannot delete the last question.")
@@ -575,14 +540,12 @@ export default function AdminQuizEditor() {
       const updatedQuestions = questions.filter((_, index) => index !== currentQuestionIndex)
       setQuestions(updatedQuestions)
 
-      // Adjust current question index if needed
       if (currentQuestionIndex >= updatedQuestions.length) {
         setCurrentQuestionIndex(updatedQuestions.length - 1)
       }
     }
   }
 
-  // Export questions to JSON
   const handleExportQuestions = () => {
     const dataStr = JSON.stringify(questions, null, 2)
     const dataUri = "data:application/json;charset=utf-8," + encodeURIComponent(dataStr)
@@ -595,7 +558,7 @@ export default function AdminQuizEditor() {
     linkElement.click()
   }
 
-  // Import questions from JSON
+  // Import questions from JSON file (if needed)
   const handleImportQuestions = (e) => {
     const file = e.target.files[0]
     if (!file) return

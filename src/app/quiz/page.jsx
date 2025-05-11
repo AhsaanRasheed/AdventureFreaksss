@@ -11,7 +11,6 @@ import logo from "../assets/logo.png"
 export default function QuizApp() {
   const router = useRouter()
 
-  // Complete quiz data with all 20 questions
   const [questions] = useState([
     {
       id: 1,
@@ -281,41 +280,25 @@ export default function QuizApp() {
     },
   ])
 
-  // State to track user answers
   const [userAnswers, setUserAnswers] = useState({})
-
-  // State to track "other" text inputs
   const [otherInputs, setOtherInputs] = useState({})
-
-  // Current question index
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-
-  // Calculate completion percentage
   const [completionPercentage, setCompletionPercentage] = useState(0)
-
-  // Add a helper message that appears when trying to click Next without answering
   const [showHelper, setShowHelper] = useState(false)
-
-  // Add these refs after the state declarations (after the showHelper state)
   const questionListRef = useRef(null)
   const questionItemRefs = useRef({})
 
-  // Update completion percentage whenever userAnswers changes
   useEffect(() => {
     const answeredQuestions = Object.keys(userAnswers).length
     const percentage = Math.round((answeredQuestions / questions.length) * 100)
     setCompletionPercentage(percentage)
   }, [userAnswers, questions.length])
 
-  // Add this useEffect after the completion percentage useEffect
-  // This will handle scrolling to the current question
   useEffect(() => {
-    // Make sure refs are available
     if (questionListRef.current && questionItemRefs.current[currentQuestionIndex]) {
       const listElement = questionListRef.current
       const questionElement = questionItemRefs.current[currentQuestionIndex]
   
-      // Check if we're in mobile view (horizontal scroll)
       const isMobileView = window.innerWidth <= 768
   
       if (isMobileView) {
@@ -324,20 +307,16 @@ export default function QuizApp() {
         const questionLeft = questionElement.offsetLeft
         const questionWidth = questionElement.offsetWidth
   
-        // Check if the question is not fully visible
         if (questionLeft < currentScrollLeft || questionLeft + questionWidth > currentScrollLeft + listWidth) {
-          // Calculate how much of the question is out of view
+          
           let scrollAdjustment = 0;
           
           if (questionLeft < currentScrollLeft) {
-            // Question is off to the left - scroll just enough to make it visible
-            scrollAdjustment = questionLeft - currentScrollLeft - 30; // 20px buffer
+            scrollAdjustment = questionLeft - currentScrollLeft - 30; 
           } else {
-            // Question is off to the right - scroll just enough to make it visible
-            scrollAdjustment = (questionLeft + questionWidth) - (currentScrollLeft + listWidth) + 30; // 20px buffer
+            scrollAdjustment = (questionLeft + questionWidth) - (currentScrollLeft + listWidth) + 30; 
           }
           
-          // Apply the minimal scroll adjustment
           listElement.scrollBy({
             left: scrollAdjustment,
             behavior: "smooth",
@@ -349,20 +328,15 @@ export default function QuizApp() {
         const questionTop = questionElement.offsetTop
         const questionHeight = questionElement.offsetHeight
   
-        // Check if the question is not fully visible
         if (questionTop < currentScrollTop || questionTop + questionHeight > currentScrollTop + listHeight) {
-          // Calculate how much of the question is out of view
           let scrollAdjustment = 0;
           
           if (questionTop < currentScrollTop) {
-            // Question is above the visible area - scroll up just enough to make it visible
-            scrollAdjustment = questionTop - currentScrollTop - 30; // 20px buffer from top
+            scrollAdjustment = questionTop - currentScrollTop - 30;
           } else {
-            // Question is below the visible area - scroll down just enough to make it visible
-            scrollAdjustment = (questionTop + questionHeight) - (currentScrollTop + listHeight) + 30; // 20px buffer from bottom
+            scrollAdjustment = (questionTop + questionHeight) - (currentScrollTop + listHeight) + 30; 
           }
           
-          // Apply the minimal scroll adjustment
           listElement.scrollBy({
             top: scrollAdjustment,
             behavior: "smooth",
@@ -372,22 +346,17 @@ export default function QuizApp() {
     }
   }, [currentQuestionIndex])
 
-  // Current question
   const currentQuestion = questions[currentQuestionIndex]
 
-  // Check if we're on the last question
   const isLastQuestion = currentQuestionIndex === questions.length - 1
 
-  // Handle option selection
   const handleOptionSelect = (optionId) => {
     const questionId = currentQuestion.id
 
     if (currentQuestion.isMultiSelect) {
-      // For multi-select questions
       setUserAnswers((prev) => {
         const currentSelections = prev[questionId] || []
 
-        // If option is already selected, remove it; otherwise, add it
         if (currentSelections.includes(optionId)) {
           return {
             ...prev,
@@ -401,7 +370,6 @@ export default function QuizApp() {
         }
       })
     } else {
-      // For single-select questions
       setUserAnswers((prev) => ({
         ...prev,
         [questionId]: [optionId],
@@ -409,7 +377,6 @@ export default function QuizApp() {
     }
   }
 
-  // Handle text input for "other" fields or text-only questions
   const handleTextInput = (e) => {
     const questionId = currentQuestion.id
     const text = e.target.value
@@ -419,14 +386,12 @@ export default function QuizApp() {
       [questionId]: text,
     }))
 
-    // For text-only questions, also mark as answered when text is entered
     if (currentQuestion.isTextOnly && text.trim() !== "") {
       setUserAnswers((prev) => ({
         ...prev,
         [questionId]: ["TEXT_INPUT"],
       }))
     } else if (currentQuestion.isTextOnly && text.trim() === "") {
-      // Remove from answered if text is cleared
       setUserAnswers((prev) => {
         const newAnswers = { ...prev }
         delete newAnswers[questionId]
@@ -435,13 +400,11 @@ export default function QuizApp() {
     }
   }
 
-  // Check if an option is selected
   const isOptionSelected = (optionId) => {
     const questionId = currentQuestion.id
     return userAnswers[questionId]?.includes(optionId) || false
   }
 
-  // Check if "other" option is selected
   const isOtherSelected = () => {
     const questionId = currentQuestion.id
     const lastOption = currentQuestion.options[currentQuestion.options.length - 1]
@@ -451,61 +414,47 @@ export default function QuizApp() {
     return userAnswers[questionId]?.includes(lastOption.id) || false
   }
 
-  // Add a function to check if a question is answered
   const isQuestionAnswered = (questionId) => {
     return !!userAnswers[questionId]
   }
 
-  // Add a function to check if the current question is answered
   const isCurrentQuestionAnswered = () => {
     return isQuestionAnswered(currentQuestion.id)
   }
 
-  // Modify the goToNextQuestion function to show the helper message if needed
   const goToNextQuestion = () => {
     const questionId = currentQuestion.id
-    // Only allow proceeding if the current question has been answered
     if (userAnswers[questionId] && currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1)
     } else if (!userAnswers[questionId]) {
-      // Show helper message
       setShowHelper(true)
-      // Hide it after 3 seconds
       setTimeout(() => {
         setShowHelper(false)
       }, 3000)
     }
   }
 
-  // Navigate to previous question
   const goToPreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1)
     }
   }
 
-  // Navigate to a specific question
   const goToQuestion = (index) => {
-    // Allow navigation to the current question or any previous answered question
     if (index >= 0 && index < questions.length && (index <= currentQuestionIndex || userAnswers[questions[index].id])) {
       setCurrentQuestionIndex(index)
     }
   }
 
-  // Handle finish button click
   const handleFinish = () => {
     const questionId = currentQuestion.id
 
-    // Make sure the last question is answered
     if (userAnswers[questionId]) {
-      // Store all answers in localStorage for the payment page to access
       localStorage.setItem("quizAnswers", JSON.stringify(userAnswers))
       localStorage.setItem("quizOtherInputs", JSON.stringify(otherInputs))
 
-      // Navigate to payment page
       router.push("/payment")
     } else {
-      // Show helper message if the last question isn't answered
       setShowHelper(true)
       setTimeout(() => {
         setShowHelper(false)
