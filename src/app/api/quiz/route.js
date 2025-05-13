@@ -7,6 +7,7 @@ export async function GET() {
   try {
     const { db } = await connectToDatabase();
     const quizzes = await db.collection("quizzes").find().toArray();
+    console.log(quizzes)
     return NextResponse.json(quizzes);
   } catch (error) {
     console.error("Error fetching quizzes:", error);

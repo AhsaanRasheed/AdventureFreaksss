@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 
+import "../src/app/payment/payment-styles.css"
+
 import {
   useStripe,
   useElements,
@@ -15,6 +17,8 @@ const CheckoutPage = ({ amount }) => {
   const [clientSecret, setClientSecret] = useState("");
   const [errorMessage, setErrorMessage] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [paymentStatus, setPaymentStatus] = useState("processing") // processing, success, error
 
   useEffect(() => {
     fetch("/api/create-payment-intent", {
@@ -31,8 +35,10 @@ const CheckoutPage = ({ amount }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setPaymentStatus("processing")
 
     if (!stripe || !elements) {
+      setPaymentStatus("error")
       return;
     }
 
@@ -43,24 +49,53 @@ const CheckoutPage = ({ amount }) => {
       setIsLoading(false);
       return;
     } else {
-      console.log("Payment succeeded!");
-    }
-
-    const { error } = await stripe.confirmPayment({
+      // setShowPaymentModal(true)
+      
+      // setPaymentStatus("processing")
+      // setTimeout(() => {
+      // setPaymentStatus("success")
+      // }, 2000)
+      
+      // setTimeout(() => {
+      //   router.push("http://localhost:3000/suggestions")
+      // }, 1000)
+      
+      // console.log("Payment succeeded!");
+      const { error } = await stripe.confirmPayment({
       elements,
       clientSecret,
       confirmParams: {
-        return_url: "http://localhost:3000/login", // Replace with your thank you page URL
+        return_url: "http://localhost:3000/payment", 
       },
     });
+    console.log("payment error")
 
     if (error) {
+      setShowPaymentModal(true)
+      setPaymentStatus("error")
+      setTimeout(()=>{
+        setShowPaymentModal(false)
+      }, 2000)
       setErrorMessage(error.message);
     } else {
-      console.log("Payment succeeded!");
+     setShowPaymentModal(true)
+      
+      setPaymentStatus("processing")
+      setTimeout(() => {
+      setPaymentStatus("success")
+      }, 2000)
+      
+      setTimeout(() => {
+        router.push("http://localhost:3000/suggestions")
+      }, 1000)
+      
+      
     }
     setIsLoading(false);
   };
+    }
+
+    
 
   if (!clientSecret || !stripe || !elements) {
     return (
@@ -74,16 +109,16 @@ const CheckoutPage = ({ amount }) => {
         <div
           style={{
             display: "inline-block",
-            height: "2rem", // h-8 = 32px
-            width: "2rem", // w-8 = 32px
+            height: "2rem", 
+            width: "2rem", 
             borderWidth: "4px",
             borderStyle: "solid",
             borderColor: "currentColor",
-            borderRightColor: "transparent", // border-e-transparent
-            borderRadius: "9999px", // rounded-full
+            borderRightColor: "transparent", 
+            borderRadius: "9999px", 
             animation: "spin 1.5s linear infinite",
-            verticalAlign: "-0.125em", // align-[-0.125em]
-            color: "#ffffff", // dark:text-white (you can conditionally toggle based on theme)
+            verticalAlign: "-0.125em",
+            color: "#ffffff", 
           }}
           role="status"
         >
@@ -118,21 +153,44 @@ const CheckoutPage = ({ amount }) => {
     >
       {clientSecret && <PaymentElement />}
       {errorMessage && <div>{errorMessage}</div>}
-      <button
-        disabled={!stripe || isLoading}
-        style={{
-          color: "white",
-          width: "100%",
-          padding: "1.25rem",
-          backgroundColor: "black",
-          marginTop: "0.5rem",
-          borderRadius: "0.375rem",
-          fontWeight: "bold",
-        }}
-      >
-        {isLoading ? "Processing..." : `Pay $${amount}`}
-      </button>
+      <div>
+
+        <button disabled={!stripe || isLoading} className="pay-now-button">
+          {isLoading ? "Processing..." : `Pay $${amount}`}
+        </button>
+      </div> 
+      {showPaymentModal && (
+        <div className="payment-modal-overlay">
+          <div className="payment-modal">
+            {paymentStatus === "processing" && (
+              <div className="payment-processing">
+                <div className="spinner"></div>
+                <h3>Processing Payment</h3>
+                <p>Please wait while we process your payment...</p>
+              </div>
+            )}
+            {paymentStatus === "success" && (
+              <div className="payment-success">
+                <div className="success-icon">✓</div>
+                <h3>Payment Successful!</h3>
+                <p>Redirecting to your personalized results...</p>
+              </div>
+            )}
+            {paymentStatus === "error" && (
+              <div className="payment-error">
+                <div className="error-icon">✗</div>
+                <h3>Payment Failed</h3>
+                <p>There was an error processing your payment. Please try again.</p>
+                <button className="try-again-button" onClick={() => setShowPaymentModal(false)}>
+                  Try Again
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </form>
+    
   );
 };
 

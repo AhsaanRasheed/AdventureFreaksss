@@ -40,8 +40,8 @@ function generatePrompt(questions) {
     }).join('\n\n');
   
     return `
-  Based on the following responses to a lifestyle and travel quiz, recommend the top 3 countries that would best suit the user’s preferences. Provide a short reason for each recommendation.
-  
+  Based on the following responses to a lifestyle and travel quiz, recommend the top 3 countries that would best suit the user’s preferences. Provide a short 3 points reason for each recommendation. Do not suggest only those countries which are selected by the user, but also consider other countries if they are a more suitable match and return those in result.
+  The user has answered the following questions:
   ${qaList}
   
   Format: Country - Explanation
