@@ -194,7 +194,6 @@ export default function AdminPage() {
         newQuestion.isTextOnly
       );
       const updatedQuestions = [...questions, newQuestion];
-      // setQuestions(updatedQuestions);
       await getQuestions();
       setCurrentQuestionIndex(updatedQuestions.length - 1);
       handleStartEditing();

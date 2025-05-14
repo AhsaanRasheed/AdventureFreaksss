@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import "../payment/payment-styles.css";
 import "../globals.css";
 
@@ -20,7 +18,6 @@ if (process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY === undefined) {
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
 
 export default function PaymentScreen() {
-  const router = useRouter();
   const amount = 47;
 
   return (
