@@ -49,9 +49,9 @@ const CheckoutPage = ({ amount }) => {
       setIsLoading(false);
       return;
     } else {
-      // setShowPaymentModal(true)
+      setShowPaymentModal(true)
       
-      // setPaymentStatus("processing")
+      setPaymentStatus("processing")
       // setTimeout(() => {
       // setPaymentStatus("success")
       // }, 2000)
@@ -65,7 +65,7 @@ const CheckoutPage = ({ amount }) => {
       elements,
       clientSecret,
       confirmParams: {
-        return_url: "http://localhost:3000/payment", 
+        return_url: "http://localhost:3000/suggestions", 
       },
     });
     console.log("payment error")
@@ -85,9 +85,9 @@ const CheckoutPage = ({ amount }) => {
       setPaymentStatus("success")
       }, 2000)
       
-      setTimeout(() => {
-        router.push("http://localhost:3000/suggestions")
-      }, 1000)
+      // setTimeout(() => {
+      //   router.push("http://localhost:3000/suggestions")
+      // }, 1000)
       
       
     }

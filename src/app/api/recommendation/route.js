@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req) {
   const { questions } = await req.json();
-
+  console.log(questions)
   const prompt = generatePrompt(questions);
 console.log('prompt', prompt);
 
@@ -26,23 +26,17 @@ console.log('prompt', prompt);
   const data = await response.json();
   
   const reply = data.choices?.[0]?.message?.content || 'No response';
+  console.log(reply)
 
   return NextResponse.json({ result: reply });
 }
 
 function generatePrompt(questions) {
-    const qaList = questions.map((q, i) => {
-      const answer = Array.isArray(q.answer)
-        ? q.answer.filter(Boolean).join(', ')
-        : q.answer || 'No answer';
-  
-      return `${i + 1}. ${q.question}\nAnswer(s): ${answer}`;
-    }).join('\n\n');
-  
+    
     return `
-  Based on the following responses to a lifestyle and travel quiz, recommend the top 3 countries that would best suit the user’s preferences. Provide a short 3 points reason for each recommendation. Do not suggest only those countries which are selected by the user, but also consider other countries if they are a more suitable match and return those in result.
+  Based on the following responses to a lifestyle and travel quiz, recommend the top 3 countries that would best suit the user’s preferences. Provide a short 5 to 6 points reason for each recommendation. Do not suggest only those countries which are selected by the user, but also consider other countries if they are a more suitable match and return those in result.
   The user has answered the following questions:
-  ${qaList}
+  ${questions}
   
   Format: Country - Explanation
   `;

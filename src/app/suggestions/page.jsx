@@ -9,95 +9,62 @@ import Image from "next/image"
 import logo from "../assets/logo.png"
 
 export default function ResultsPage() {
-    const router = useRouter()
-    const [userAnswers, setUserAnswers] = useState({})
-    const [showSnackbar, setShowSnackbar] = useState(false)
-    const resultsRef = useRef(null)
-    
-    const [destinations, setDestinations] = useState([
-      {
-        name: "Portugal",
-        matches: [
-          "Good for family of 3",
-          "Matches your budget preferences",
-          "Has your preferred climate",
-          "Offers good healthcare options",
-        ],
-      },
-      {
-        name: "Costa Rica",
-        matches: [
-          "Good for family of 3",
-          "Matches your climate preferences",
-          "Has beautiful beaches and nature",
-          "Offers good quality of life",
-        ],
-      },
-      {
-        name: "Thailand",
-        matches: [
-          "Good for family of 3",
-          "Excellent cost of living for your budget",
-          "Has your preferred tropical climate",
-          "Rich cultural experiences",
-        ],
-      },
-    ])
-  
-    useEffect(() => {
-      const savedAnswers = localStorage.getItem("quizAnswers")
-      const savedOtherInputs = localStorage.getItem("quizOtherInputs")
-  
-      if (savedAnswers) {
-        setUserAnswers(JSON.parse(savedAnswers))
-      }
-    }, [])
-  
-    const handleTakeScreenshot = async () => {
+  const router = useRouter()
+  const [userAnswers, setUserAnswers] = useState("")
+  const [destinations, setDestinations] = useState([])
+  const [showSnackbar, setShowSnackbar] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const resultsRef = useRef(null)
+
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      const savedAnswers = localStorage.getItem("formattedAnswers")
+      if (!savedAnswers) return
+
+      setUserAnswers(savedAnswers)
+
       try {
-        if (!navigator.clipboard || !window.html2canvas) {
-          alert("Your browser doesn't support taking screenshots. Please try a different browser.")
-          return
-        }
-  
-        const canvas = await window.html2canvas(resultsRef.current)
-        
-        canvas.toBlob(async (blob) => {
-          try {
-            const item = new ClipboardItem({ "image/png": blob })
-            await navigator.clipboard.write([item])
-            setShowSnackbar(true)
-            setTimeout(() => {
-              setShowSnackbar(false)
-            }, 3000)
-          } catch (err) {
-            console.error("Failed to copy screenshot to clipboard:", err)
-            alert("Failed to copy screenshot to clipboard. Please try again.")
-          }
+        const res = await fetch("/api/recommendation", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ questions: savedAnswers }),
         })
+
+        const data = await res.json()
+        const parsed = parseDestinations(data.result)
+        setDestinations(parsed)
       } catch (err) {
-        console.error("Failed to take screenshot:", err)
-        alert("Failed to take screenshot. Please try again.")
+        console.error("Failed to fetch recommendations:", err)
+      } finally {
+        setLoading(false)
       }
     }
+
+    fetchRecommendations()
+  }, [])
+
   
-    return (
-      <div className="results-container">
-        <header className="results-header">
-          <div className="logo">
-            <Image src={logo} alt="Adventure Freaks Logo" />
-          </div>
-          <h1>Find your Destination</h1>
-        </header>
-  
-        <main className="results-main" ref={resultsRef}>
-          <div className="results-title-container">
-            <h2 className="results-title">Here are the Top 3 Suggestions</h2>
-            <button className="screenshot-button" onClick={handleTakeScreenshot}>
-              Take a screenshot
-            </button>
-          </div>
-  
+
+  return (
+    <div className="results-container">
+      <header className="results-header">
+        <div className="logo">
+          <Image src={logo} alt="Adventure Freaks Logo" />
+        </div>
+        <h1>Find your Destination</h1>
+      </header>
+
+      <main className="results-main" ref={resultsRef}>
+        <div className="results-title-container">
+          <h2 className="results-title">Here are the Top 3 Suggestions</h2>
+          
+        </div>
+
+        {loading ? (
+          <p>Loading recommendations...</p>
+        ) : (
           <div className="destinations-container">
             {destinations.map((destination, index) => (
               <div key={index} className="destination-card">
@@ -113,22 +80,45 @@ export default function ResultsPage() {
               </div>
             ))}
           </div>
-        </main>
-  
-        <footer className="results-footer">
-          <p>Copyright © 2025 Adventure Freakssss</p>
-        </footer>
-  
-        {showSnackbar && (
-          <div className="snackbar">
-            <div className="snackbar-content">
-              <span className="snackbar-icon">✓</span>
-              Screenshot copied to clipboard!
-            </div>
-          </div>
         )}
-      </div>
-    )
-  }
-  
-  
+      </main>
+
+      <footer className="results-footer">
+        <p>Copyright © 2025 Adventure Freaksss</p>
+      </footer>
+
+      {showSnackbar && (
+        <div className="snackbar">
+          <div className="snackbar-content">
+            <span className="snackbar-icon">✓</span>
+            Screenshot copied to clipboard!
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function parseDestinations(responseText) {
+  const lines = responseText.split("\n").map((l) => l.trim()).filter((l) => l.length > 0)
+
+  const destinations = []
+  let current = null
+
+  lines.forEach((line) => {
+    if (/^\d+\./.test(line)) {
+      if (current) {
+        current.matches.push(line.replace(/^\d+\.\s*/, ""))
+      }
+    } else {
+      if (current) {
+        destinations.push(current)
+      }
+      current = { name: line, matches: [] }
+    }
+  })
+
+  if (current) destinations.push(current)
+
+  return destinations
+}
