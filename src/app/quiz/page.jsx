@@ -1,289 +1,332 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { useRouter } from "next/navigation"
-import "../quiz/quiz-styles.css"
-import "../globals.css"
-import Image from "next/image"
-import logo from "../assets/logo.png"
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import "../quiz/quiz-styles.css";
+import "../globals.css";
+import Image from "next/image";
+import logo from "../assets/logo.png";
+import { fetchQuestions } from "../../../lib/service";
 
 export default function QuizApp() {
-  const router = useRouter()
+  const router = useRouter();
 
-  const [userAnswers, setUserAnswers] = useState({})
-  const [otherInputs, setOtherInputs] = useState({})
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [completionPercentage, setCompletionPercentage] = useState(0)
-  const [showHelper, setShowHelper] = useState(false)
-  const [helperMessage, setHelperMessage] = useState("Please answer this question before proceeding")
-  const questionListRef = useRef(null)
-  const questionItemRefs = useRef({})
+  const [userAnswers, setUserAnswers] = useState({});
+  const [otherInputs, setOtherInputs] = useState({});
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [completionPercentage, setCompletionPercentage] = useState(0);
+  const [showHelper, setShowHelper] = useState(false);
+  const [helperMessage, setHelperMessage] = useState(
+    "Please answer this question before proceeding"
+  );
+  const questionListRef = useRef(null);
+  const questionItemRefs = useRef({});
 
-  const [questions, setQuestions] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const formatAnswersForAI = () => {
-    let formattedString = ""
+    let formattedString = "";
 
     Object.entries(userAnswers).forEach(([question, answers], index) => {
-      formattedString += `Question ${index + 1}: ${question}\n`
+      formattedString += `Question ${index + 1}: ${question}\n`;
 
       if (Array.isArray(answers) && answers.length > 0) {
-        formattedString += `Answer${answers.length > 1 ? "s" : ""}: ${answers.join(", ")}`
+        formattedString += `Answer${
+          answers.length > 1 ? "s" : ""
+        }: ${answers.join(", ")}`;
 
-        const otherText = otherInputs[question]
-        if (otherText && answers.some((answer) => answer.toLowerCase().includes("other"))) {
-          formattedString += ` (${otherText})`
+        const otherText = otherInputs[question];
+        if (
+          otherText &&
+          answers.some((answer) => answer.toLowerCase().includes("other"))
+        ) {
+          formattedString += ` (${otherText})`;
         }
       }
 
-      formattedString += "\n\n"
-    })
-    console.log(formattedString.trim())
-    return formattedString.trim()
-  }
+      formattedString += "\n\n";
+    });
+    return formattedString.trim();
+  };
 
-  useEffect(() => {
-    const fetchQuizQuestions = async () => {
-      try {
-        const res = await fetch("/api/quiz")
-        if (!res.ok) throw new Error("Failed to fetch quiz questions")
-
-        const data = await res.json()
-
-        const formattedData = data.map((question) => {
-          const processedOptions = question.options.map((option, index) => {
-            // Generate option ID (A, B, C, etc.) based on index
-            const optionId = String.fromCharCode(65 + index) 
-            return {
-              id: optionId,
-              text: option.text || option.label || option.value || `Option ${optionId}`,
-              isOther: (option.text || option.label || "").toLowerCase().includes("other") || false,
-            }
-          })
-
+  const getQuizQuestions = async () => {
+    try {
+      const data = await fetchQuestions();
+      const formattedData = data.map((question) => {
+        const processedOptions = question.options.map((option, index) => {
+          // Generate option ID (A, B, C, etc.) based on index
+          const optionId = String.fromCharCode(65 + index);
           return {
-            id: question._id?.$oid || question._id,
-            text: question.text,
-            options: processedOptions,
-            isMultiSelect: question.isMultiSelect,
-            enableOtherField: question.enableOtherField,
-            isTextOnly: question.isTextOnly,
-          }
-        })
+            id: optionId,
+            text:
+              option.text ||
+              option.label ||
+              option.value ||
+              `Option ${optionId}`,
+            isOther:
+              (option.text || option.label || "")
+                .toLowerCase()
+                .includes("other") || false,
+          };
+        });
 
-        console.log("Formatted questions:", formattedData)
-        setQuestions(formattedData)
-      } catch (err) {
-        console.error("Fetch quiz error:", err)
-        setError(err.message)
-      } finally {
-        setLoading(false)
-      }
+        return {
+          id: question._id?.$oid || question._id,
+          text: question.text,
+          options: processedOptions,
+          isMultiSelect: question.isMultiSelect,
+          enableOtherField: question.enableOtherField,
+          isTextOnly: question.isTextOnly,
+        };
+      });
+      setQuestions(formattedData); // Set the formatted quiz data
+    } catch (err) {
+      setError(err.message); // Handle any errors
+    } finally {
+      setLoading(false); // Stop loading once the data is fetched
     }
-
-    fetchQuizQuestions()
-  }, [])
+  };
 
   useEffect(() => {
-    const answered = Object.keys(userAnswers).length
-    const percentage = Math.round((answered / questions.length) * 100)
-    setCompletionPercentage(percentage || 0)
-  }, [userAnswers, questions.length])
+    getQuizQuestions(); // Call the function to fetch quiz questions
+  }, []);
 
   useEffect(() => {
-    if (questionListRef.current && questionItemRefs.current[currentQuestionIndex]) {
-      const listElement = questionListRef.current
-      const questionElement = questionItemRefs.current[currentQuestionIndex]
-      const isMobile = window.innerWidth <= 768
+    const answered = Object.keys(userAnswers).length;
+    const percentage = Math.round((answered / questions.length) * 100);
+    setCompletionPercentage(percentage || 0);
+  }, [userAnswers, questions.length]);
+
+  useEffect(() => {
+    if (
+      questionListRef.current &&
+      questionItemRefs.current[currentQuestionIndex]
+    ) {
+      const listElement = questionListRef.current;
+      const questionElement = questionItemRefs.current[currentQuestionIndex];
+      const isMobile = window.innerWidth <= 768;
 
       if (isMobile) {
-        const currentScrollLeft = listElement.scrollLeft
-        const listWidth = listElement.clientWidth
-        const questionLeft = questionElement.offsetLeft
-        const questionWidth = questionElement.offsetWidth
+        const currentScrollLeft = listElement.scrollLeft;
+        const listWidth = listElement.clientWidth;
+        const questionLeft = questionElement.offsetLeft;
+        const questionWidth = questionElement.offsetWidth;
 
-        if (questionLeft < currentScrollLeft || questionLeft + questionWidth > currentScrollLeft + listWidth) {
+        if (
+          questionLeft < currentScrollLeft ||
+          questionLeft + questionWidth > currentScrollLeft + listWidth
+        ) {
           const scrollAdjustment =
             questionLeft < currentScrollLeft
               ? questionLeft - currentScrollLeft - 30
-              : questionLeft + questionWidth - (currentScrollLeft + listWidth) + 30
+              : questionLeft +
+                questionWidth -
+                (currentScrollLeft + listWidth) +
+                30;
 
-          listElement.scrollBy({ left: scrollAdjustment, behavior: "smooth" })
+          listElement.scrollBy({ left: scrollAdjustment, behavior: "smooth" });
         }
       } else {
-        const currentScrollTop = listElement.scrollTop
-        const listHeight = listElement.clientHeight
-        const questionTop = questionElement.offsetTop
-        const questionHeight = questionElement.offsetHeight
+        const currentScrollTop = listElement.scrollTop;
+        const listHeight = listElement.clientHeight;
+        const questionTop = questionElement.offsetTop;
+        const questionHeight = questionElement.offsetHeight;
 
-        if (questionTop < currentScrollTop || questionTop + questionHeight > currentScrollTop + listHeight) {
+        if (
+          questionTop < currentScrollTop ||
+          questionTop + questionHeight > currentScrollTop + listHeight
+        ) {
           const scrollAdjustment =
             questionTop < currentScrollTop
               ? questionTop - currentScrollTop - 30
-              : questionTop + questionHeight - (currentScrollTop + listHeight) + 30
+              : questionTop +
+                questionHeight -
+                (currentScrollTop + listHeight) +
+                30;
 
-          listElement.scrollBy({ top: scrollAdjustment, behavior: "smooth" })
+          listElement.scrollBy({ top: scrollAdjustment, behavior: "smooth" });
         }
       }
     }
-  }, [currentQuestionIndex])
+  }, [currentQuestionIndex]);
 
-  const currentQuestion = questions[currentQuestionIndex]
-  const isLastQuestion = currentQuestionIndex === questions.length - 1
+  const currentQuestion = questions[currentQuestionIndex];
+  const isLastQuestion = currentQuestionIndex === questions.length - 1;
 
   const handleOptionSelect = (optionId) => {
-    if (!currentQuestion) return
+    if (!currentQuestion) return;
 
-    const questionText = currentQuestion.text
-    const selectedOption = currentQuestion.options.find((option) => option.id === optionId)
+    const questionText = currentQuestion.text;
+    const selectedOption = currentQuestion.options.find(
+      (option) => option.id === optionId
+    );
 
-    if (!selectedOption) return
+    if (!selectedOption) return;
 
-    const answerText = selectedOption.text
+    const answerText = selectedOption.text;
 
     if (currentQuestion.isMultiSelect) {
       setUserAnswers((prev) => {
-        const currentSelections = prev[questionText] || []
+        const currentSelections = prev[questionText] || [];
 
         if (currentSelections.includes(answerText)) {
           return {
             ...prev,
-            [questionText]: currentSelections.filter((text) => text !== answerText),
-          }
+            [questionText]: currentSelections.filter(
+              (text) => text !== answerText
+            ),
+          };
         } else {
           return {
             ...prev,
             [questionText]: [...currentSelections, answerText],
-          }
+          };
         }
-      })
+      });
     } else {
       setUserAnswers((prev) => ({
         ...prev,
         [questionText]: [answerText],
-      }))
+      }));
     }
-  }
+  };
 
   const handleTextInput = (e) => {
-    if (!currentQuestion) return
+    if (!currentQuestion) return;
 
-    const questionText = currentQuestion.text
-    const text = e.target.value
+    const questionText = currentQuestion.text;
+    const text = e.target.value;
 
-    setOtherInputs((prev) => ({ ...prev, [questionText]: text }))
+    setOtherInputs((prev) => ({ ...prev, [questionText]: text }));
 
     if (currentQuestion.isTextOnly) {
       setUserAnswers((prev) => {
-        const updated = { ...prev }
+        const updated = { ...prev };
         if (text.trim() === "") {
-          delete updated[questionText]
+          delete updated[questionText];
         } else {
-          updated[questionText] = ["TEXT_INPUT"]
+          updated[questionText] = ["TEXT_INPUT"];
         }
-        return updated
-      })
+        return updated;
+      });
     }
-  }
+  };
 
   const isOptionSelected = (optionId) => {
-    if (!currentQuestion) return false
+    if (!currentQuestion) return false;
 
-    const questionText = currentQuestion.text
-    const option = currentQuestion.options.find((opt) => opt.id === optionId)
+    const questionText = currentQuestion.text;
+    const option = currentQuestion.options.find((opt) => opt.id === optionId);
 
-    if (!option) return false
+    if (!option) return false;
 
-    const answers = userAnswers[questionText] || []
-    return answers.includes(option.text)
-  }
+    const answers = userAnswers[questionText] || [];
+    return answers.includes(option.text);
+  };
 
   const findOtherOption = () => {
-    if (!currentQuestion || !currentQuestion.options) return null
+    if (!currentQuestion || !currentQuestion.options) return null;
 
-    return currentQuestion.options.find((option) => option.text.toLowerCase().includes("other") || option.isOther)
-  }
+    return currentQuestion.options.find(
+      (option) => option.text.toLowerCase().includes("other") || option.isOther
+    );
+  };
 
   const isOtherSelected = () => {
-    if (!currentQuestion) return false
+    if (!currentQuestion) return false;
 
-    const questionText = currentQuestion.text
-    const answers = userAnswers[questionText] || []
+    const questionText = currentQuestion.text;
+    const answers = userAnswers[questionText] || [];
 
-    return answers.some((answer) => answer.toLowerCase().includes("other"))
-  }
+    return answers.some((answer) => answer.toLowerCase().includes("other"));
+  };
 
   const isCurrentQuestionAnswered = () => {
-    if (!currentQuestion) return false
+    if (!currentQuestion) return false;
 
-    const questionText = currentQuestion.text
+    const questionText = currentQuestion.text;
 
-    if (!userAnswers[questionText] || userAnswers[questionText].length === 0) return false
+    if (!userAnswers[questionText] || userAnswers[questionText].length === 0)
+      return false;
 
     if (isOtherSelected()) {
-      const otherText = otherInputs[questionText]
-      return otherText && otherText.trim() !== ""
+      const otherText = otherInputs[questionText];
+      return otherText && otherText.trim() !== "";
     }
-    return true
-  }
+    return true;
+  };
 
   const goToNextQuestion = () => {
-    if (isOtherSelected() && (!otherInputs[currentQuestion.text] || otherInputs[currentQuestion.text].trim() === "")) {
-      setHelperMessage("Please provide details for the 'Other' option")
-      setShowHelper(true)
-      setTimeout(() => setShowHelper(false), 3000)
-      return
+    if (
+      isOtherSelected() &&
+      (!otherInputs[currentQuestion.text] ||
+        otherInputs[currentQuestion.text].trim() === "")
+    ) {
+      setHelperMessage("Please provide details for the 'Other' option");
+      setShowHelper(true);
+      setTimeout(() => setShowHelper(false), 3000);
+      return;
     }
 
     if (isCurrentQuestionAnswered() && !isLastQuestion) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1)
-      setHelperMessage("Please answer this question before proceeding")
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setHelperMessage("Please answer this question before proceeding");
     } else if (!isCurrentQuestionAnswered()) {
-      setHelperMessage("Please answer this question before proceeding")
-      setShowHelper(true)
-      setTimeout(() => setShowHelper(false), 3000)
+      setHelperMessage("Please answer this question before proceeding");
+      setShowHelper(true);
+      setTimeout(() => setShowHelper(false), 3000);
     }
-  }
+  };
 
   const goToPreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1)
-      setHelperMessage("Please answer this question before proceeding")
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      setHelperMessage("Please answer this question before proceeding");
     }
-  }
+  };
 
   const goToQuestion = (index) => {
-    const q = questions[index]
-    if (q && index >= 0 && index < questions.length && (index <= currentQuestionIndex || userAnswers[q.text])) {
-      setCurrentQuestionIndex(index)
-      setHelperMessage("Please answer this question before proceeding")
+    const q = questions[index];
+    if (
+      q &&
+      index >= 0 &&
+      index < questions.length &&
+      (index <= currentQuestionIndex || userAnswers[q.text])
+    ) {
+      setCurrentQuestionIndex(index);
+      setHelperMessage("Please answer this question before proceeding");
     }
-  }
+  };
 
   const handleFinish = () => {
-    if (isOtherSelected() && (!otherInputs[currentQuestion.text] || otherInputs[currentQuestion.text].trim() === "")) {
-      setHelperMessage("Please provide details for the 'Other' option")
-      setShowHelper(true)
-      setTimeout(() => setShowHelper(false), 3000)
-      return
+    if (
+      isOtherSelected() &&
+      (!otherInputs[currentQuestion.text] ||
+        otherInputs[currentQuestion.text].trim() === "")
+    ) {
+      setHelperMessage("Please provide details for the 'Other' option");
+      setShowHelper(true);
+      setTimeout(() => setShowHelper(false), 3000);
+      return;
     }
 
     if (isCurrentQuestionAnswered()) {
-      const formattedAnswers = formatAnswersForAI()
-      console.log(formattedAnswers)
-      localStorage.setItem("quizAnswers", JSON.stringify(userAnswers))
-      localStorage.setItem("quizOtherInputs", JSON.stringify(otherInputs))
-      localStorage.setItem("formattedAnswers", formattedAnswers)
+      const formattedAnswers = formatAnswersForAI();
 
-      router.push("/payment")
+      // localStorage.setItem("quizAnswers", JSON.stringify(userAnswers));
+      // localStorage.setItem("quizOtherInputs", JSON.stringify(otherInputs));
+
+      localStorage.setItem("formattedAnswers", formattedAnswers);
+      router.push("/payment");
     } else {
-      setHelperMessage("Please answer this question before proceeding")
-      setShowHelper(true)
-      setTimeout(() => setShowHelper(false), 3000)
+      setHelperMessage("Please answer this question before proceeding");
+      setShowHelper(true);
+      setTimeout(() => setShowHelper(false), 3000);
     }
-  }
+  };
+
   if (loading) {
     return (
       <div className="quiz-container">
@@ -292,7 +335,7 @@ export default function QuizApp() {
           <p>Loading quiz questions...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -304,7 +347,7 @@ export default function QuizApp() {
           <button onClick={() => window.location.reload()}>Try Again</button>
         </div>
       </div>
-    )
+    );
   }
 
   if (!currentQuestion) {
@@ -315,7 +358,7 @@ export default function QuizApp() {
           <p>There are no quiz questions available at this time.</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -328,7 +371,10 @@ export default function QuizApp() {
       </div>
 
       <div className="progress-bar">
-        <div className="progress-indicator" style={{ width: `${completionPercentage}%` }}></div>
+        <div
+          className="progress-indicator"
+          style={{ width: `${completionPercentage}%` }}
+        ></div>
       </div>
       <div className="completion-text">{completionPercentage}% Complete</div>
 
@@ -341,7 +387,11 @@ export default function QuizApp() {
               className={`question-item 
                 ${index === currentQuestionIndex ? "active" : ""} 
                 ${userAnswers[question.text] ? "answered" : ""} 
-                ${index > currentQuestionIndex && !userAnswers[question.text] ? "disabled" : ""}`}
+                ${
+                  index > currentQuestionIndex && !userAnswers[question.text]
+                    ? "disabled"
+                    : ""
+                }`}
               onClick={() => goToQuestion(index)}
             >
               <div className="question-number">{index + 1}</div>
@@ -352,7 +402,9 @@ export default function QuizApp() {
 
         <div className="question-content">
           <div className="question-header">
-            <div className="question-number-large">{currentQuestionIndex + 1}</div>
+            <div className="question-number-large">
+              {currentQuestionIndex + 1}
+            </div>
             <h2 className="question-title">{currentQuestion.text}</h2>
           </div>
 
@@ -373,12 +425,16 @@ export default function QuizApp() {
                   {currentQuestion.options.map((option) => (
                     <div
                       key={option.id}
-                      className={`option ${isOptionSelected(option.id) ? "selected" : ""}`}
+                      className={`option ${
+                        isOptionSelected(option.id) ? "selected" : ""
+                      }`}
                       onClick={() => handleOptionSelect(option.id)}
                     >
                       <div className="option-id">{option.id}</div>
                       <div className="option-text">{option.text}</div>
-                      {isOptionSelected(option.id) && <div className="check-icon">✓</div>}
+                      {isOptionSelected(option.id) && (
+                        <div className="check-icon">✓</div>
+                      )}
                     </div>
                   ))}
 
@@ -400,29 +456,36 @@ export default function QuizApp() {
           </div>
 
           <div className="navigation-buttons">
-            <button className="prev-button" onClick={goToPreviousQuestion} disabled={currentQuestionIndex === 0}>
+            <button
+              className="prev-button"
+              onClick={goToPreviousQuestion}
+              disabled={currentQuestionIndex === 0}
+            >
               Previous
             </button>
-            <div className={`navigation-helper ${showHelper ? "visible" : ""}`}>{helperMessage}</div>
+            <div className={`navigation-helper ${showHelper ? "visible" : ""}`}>
+              {helperMessage}
+            </div>
             {isLastQuestion ? (
-              <button className="finish-button" onClick={handleFinish} disabled={!isCurrentQuestionAnswered()}>
+              <button
+                className="finish-button"
+                onClick={handleFinish}
+                disabled={!isCurrentQuestionAnswered()}
+              >
                 Finish
               </button>
             ) : (
-              <button className="next-button" onClick={goToNextQuestion} disabled={!isCurrentQuestionAnswered()}>
+              <button
+                className="next-button"
+                onClick={goToNextQuestion}
+                disabled={!isCurrentQuestionAnswered()}
+              >
                 Next
               </button>
             )}
           </div>
         </div>
       </div>
-
-      <button
-        onClick={() => console.log(formatAnswersForAI())}
-        style={{ position: "fixed", bottom: "10px", right: "10px", padding: "5px", fontSize: "12px" }}
-      >
-        Log Formatted Answers
-      </button>
     </div>
-  )
+  );
 }

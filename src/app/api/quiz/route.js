@@ -49,7 +49,7 @@ export async function POST(request) {
 // PUT update an existing quiz
 export async function PUT(request) {
   try {
-    const { id, text, options } = await request.json();
+    const { id, text, options, isMultiSelect, enableOtherField } = await request.json();
     const { db } = await connectToDatabase();
 
     if (!ObjectId.isValid(id)) {
@@ -59,6 +59,8 @@ export async function PUT(request) {
     const updateFields = {};
     if (text !== undefined) updateFields.text = text;
     if (options !== undefined) updateFields.options = options;
+    if (isMultiSelect !== undefined) updateFields.isMultiSelect = isMultiSelect;
+    if (enableOtherField !== undefined) updateFields.enableOtherField = enableOtherField;
 
     const updatedQuiz = await db
       .collection("quizzes")

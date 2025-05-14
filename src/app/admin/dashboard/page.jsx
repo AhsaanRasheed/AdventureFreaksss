@@ -85,7 +85,10 @@ export default function AdminPage() {
       await updateQuestion(
         editingQuestion._id, // or questionId
         editingQuestion.text, // updated question text
-        editingQuestion.options // updated answers/options
+        editingQuestion.options, // updated answers/options
+        editingQuestion.isMultiSelect, // updated isMultiSelect
+        editingQuestion.enableOtherField, // updated enableOtherField
+        editingQuestion.isTextOnly // updated isTextOnly
       );
 
       // Update in UI
@@ -156,6 +159,8 @@ export default function AdminPage() {
   };
 
   const handleToggleMultiSelect = () => {
+    console.log("Toggle multi-select", !editingQuestion.isMultiSelect);
+    
     setEditingQuestion({
       ...editingQuestion,
       isMultiSelect: !editingQuestion.isMultiSelect,
