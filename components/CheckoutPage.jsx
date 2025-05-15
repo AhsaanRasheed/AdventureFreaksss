@@ -65,7 +65,7 @@ const CheckoutPage = ({ amount }) => {
       elements,
       clientSecret,
       confirmParams: {
-        return_url: "http://localhost:3000/suggestions", 
+        return_url: "/suggestions", 
       },
     });
     console.log("payment error")
