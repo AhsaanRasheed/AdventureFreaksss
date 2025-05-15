@@ -19,7 +19,7 @@ export default function AdminPage() {
   const [showSaveNotification, setShowSaveNotification] = useState(false);
   const [hoveredQuestionIndex, setHoveredQuestionIndex] = useState(null);
 
-  // Add a state to track if there are unsaved change
+  // Add a state to track if there are unsaved changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const [showSaveConfirmDialog, setShowSaveConfirmDialog] = useState(false);
