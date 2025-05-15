@@ -7,6 +7,7 @@ export async function GET() {
   try {
     const { db } = await connectToDatabase();
     const quizzes = await db.collection("quizzes").find().toArray();
+    console.log(quizzes)
     return NextResponse.json(quizzes);
   } catch (error) {
     console.error("Error fetching quizzes:", error);
@@ -22,21 +23,20 @@ export async function GET() {
 // POST create a new quiz
 export async function POST(request) {
   try {
-    const { question, answer } = await request.json();
+    const { text, options, isMultiSelect ,enableOtherField, isTextOnly } = await request.json();
     // Validate input
-    if (!question || !answer) {
+    if (!text || !options) {
       return NextResponse.json(
         { error: "Question and answer are required." },
         { status: 400 }
       );
     }
-
     const { db } = await connectToDatabase();
     const result = await db
       .collection("quizzes")
-      .insertOne({ question, answer });
+      .insertOne({ text, options, isMultiSelect ,enableOtherField, isTextOnly });
 
-    return NextResponse.json({ id: result.insertedId, question, answer });
+    return NextResponse.json({ id: result.insertedId, text, options, isMultiSelect ,enableOtherField, isTextOnly });
   } catch (error) {
     console.error("Error inserting quiz:", error);
     return NextResponse.json(
@@ -47,10 +47,9 @@ export async function POST(request) {
 }
 
 // PUT update an existing quiz
-// PUT update an existing quiz
 export async function PUT(request) {
   try {
-    const { id, question, answer } = await request.json();
+    const { id, text, options, isMultiSelect, enableOtherField } = await request.json();
     const { db } = await connectToDatabase();
 
     if (!ObjectId.isValid(id)) {
@@ -58,8 +57,10 @@ export async function PUT(request) {
     }
 
     const updateFields = {};
-    if (question !== undefined) updateFields.question = question;
-    if (answer !== undefined) updateFields.answer = answer;
+    if (text !== undefined) updateFields.text = text;
+    if (options !== undefined) updateFields.options = options;
+    if (isMultiSelect !== undefined) updateFields.isMultiSelect = isMultiSelect;
+    if (enableOtherField !== undefined) updateFields.enableOtherField = enableOtherField;
 
     const updatedQuiz = await db
       .collection("quizzes")
