@@ -65,7 +65,7 @@ const CheckoutPage = ({ amount }) => {
       elements,
       clientSecret,
       confirmParams: {
-        return_url: "/suggestions", 
+        return_url: "https://adventure-freaksss.vercel.app/suggestions", 
       },
     });
     console.log("payment error")
