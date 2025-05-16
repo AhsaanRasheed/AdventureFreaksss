@@ -17,8 +17,9 @@ const CheckoutPage = ({ amount }) => {
   const [clientSecret, setClientSecret] = useState("");
   const [errorMessage, setErrorMessage] = useState();
   const [isLoading, setIsLoading] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false)
-  const [paymentStatus, setPaymentStatus] = useState("processing") // processing, success, error
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState("processing");
+  const [isPaymentElementComplete, setIsPaymentElementComplete] = useState(false); 
 
   useEffect(() => {
     fetch("/api/create-payment-intent", {
@@ -35,10 +36,10 @@ const CheckoutPage = ({ amount }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setPaymentStatus("processing")
+    setPaymentStatus("processing");
 
     if (!stripe || !elements) {
-      setPaymentStatus("error")
+      setPaymentStatus("error");
       return;
     }
 
@@ -48,117 +49,61 @@ const CheckoutPage = ({ amount }) => {
       setErrorMessage(submitError.message);
       setIsLoading(false);
       return;
-    } else {
-      setShowPaymentModal(true)
-      
-      setPaymentStatus("processing")
-      // setTimeout(() => {
-      // setPaymentStatus("success")
-      // }, 2000)
-      
-      // setTimeout(() => {
-      //   router.push("http://localhost:3000/suggestions")
-      // }, 1000)
-      
-      // console.log("Payment succeeded!");
-      const { error } = await stripe.confirmPayment({
+    }
+
+    setShowPaymentModal(true);
+
+    const { error } = await stripe.confirmPayment({
       elements,
       clientSecret,
       confirmParams: {
-        return_url: "https://adventure-freaksss.vercel.app/suggestions", 
+        return_url: "https://adventure-freaksss.vercel.app/suggestions",
       },
     });
-    console.log("payment error")
 
     if (error) {
-      setShowPaymentModal(true)
-      setPaymentStatus("error")
-      setTimeout(()=>{
-        setShowPaymentModal(false)
-      }, 2000)
+      setPaymentStatus("error");
+      setTimeout(() => {
+        setShowPaymentModal(false);
+      }, 2000);
       setErrorMessage(error.message);
     } else {
-     setShowPaymentModal(true)
-      
-      setPaymentStatus("processing")
+      setPaymentStatus("processing");
       setTimeout(() => {
-      setPaymentStatus("success")
-      }, 2000)
-      
-      // setTimeout(() => {
-      //   router.push("http://localhost:3000/suggestions")
-      // }, 1000)
-      
-      
-    }
-    setIsLoading(false);
-  };
+        setPaymentStatus("success");
+      }, 2000);
     }
 
-    
+    setIsLoading(false);
+  };
 
   if (!clientSecret || !stripe || !elements) {
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div
-          style={{
-            display: "inline-block",
-            height: "2rem", 
-            width: "2rem", 
-            borderWidth: "4px",
-            borderStyle: "solid",
-            borderColor: "currentColor",
-            borderRightColor: "transparent", 
-            borderRadius: "9999px", 
-            animation: "spin 1.5s linear infinite",
-            verticalAlign: "-0.125em",
-            color: "#ffffff", 
-          }}
-          role="status"
-        >
-          <span
-            style={{
-              position: "absolute",
-              margin: "-1px",
-              height: "1px",
-              width: "1px",
-              overflow: "hidden",
-              whiteSpace: "nowrap",
-              border: "0",
-              padding: "0",
-              clip: "rect(0, 0, 0, 0)",
-            }}
-          >
-            Loading...
-          </span>
-        </div>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <div className="spinner" role="status"></div>
       </div>
     );
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{
-        backgroundColor: "white",
-        padding: "0.5rem",
-        borderRadius: "0.375rem",
-      }}
-    >
-      {clientSecret && <PaymentElement />}
-      {errorMessage && <div>{errorMessage}</div>}
-      <div>
-
-        <button disabled={!stripe || isLoading} className="pay-now-button">
+    <form onSubmit={handleSubmit} style={{ backgroundColor: "white", padding: "0.5rem", borderRadius: "0.375rem" }}>
+      {clientSecret && (
+        <PaymentElement
+          onChange={(event) => {
+            setIsPaymentElementComplete(event.complete); 
+          }}
+        />
+      )}
+      {errorMessage && <div style="error-message">{errorMessage}</div>}
+      <div style={{ marginTop: "1rem" }}>
+        <button
+          disabled={!stripe || isLoading || !isPaymentElementComplete} 
+          className="pay-now-button"
+        >
           {isLoading ? "Processing..." : `Pay $${amount}`}
         </button>
-      </div> 
+      </div>
+
       {showPaymentModal && (
         <div className="payment-modal-overlay">
           <div className="payment-modal">
@@ -190,7 +135,6 @@ const CheckoutPage = ({ amount }) => {
         </div>
       )}
     </form>
-    
   );
 };
 
