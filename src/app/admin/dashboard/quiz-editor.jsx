@@ -28,6 +28,7 @@ export default function AdminQuizEditor({
   handleQuestionTextChange,
   handleToggleMultiSelect,
   handleToggleOtherField,
+  handleToggleTextOnly,
   handleOptionTextChange,
   handleRemoveOption,
   handleAddOption,
@@ -212,6 +213,16 @@ export default function AdminQuizEditor({
                           onChange={handleToggleOtherField}
                         />
                         Enable "Other" Field
+                      </label>
+                    </div>
+                    <div className="setting-group">
+                      <label className="setting-label">
+                        <input
+                          type="checkbox"
+                          checked={editingQuestion.isTextOnly}
+                          onChange={handleToggleTextOnly}
+                        />
+                        Text Only Field
                       </label>
                     </div>
                   </div>
