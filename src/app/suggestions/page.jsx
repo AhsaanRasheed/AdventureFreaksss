@@ -8,6 +8,7 @@ import "../globals.css";
 import Image from "next/image";
 import logo from "../assets/logo.png";
 import { getRecommendations } from "../../../lib/service";
+import {sendAnswersToEmail} from "../../../lib/service";
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -21,20 +22,61 @@ export default function ResultsPage() {
     fetchRecommendations();
   }, []);
 
+  // const fetchRecommendations = async () => {
+  //   const savedAnswers = localStorage.getItem("formattedAnswers");
+  //   if (!savedAnswers) return;
+
+  //   try {
+  //     const result = await getRecommendations(savedAnswers);
+
+  //     setDestinations(result);
+  //   } catch (err) {
+  //     console.error("Failed to fetch recommendations:", err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const fetchRecommendations = async () => {
     const savedAnswers = localStorage.getItem("formattedAnswers");
+    
+    const cachedRecommendations = localStorage.getItem("cachedRecommendations");
+    
     if (!savedAnswers) return;
+
+    if (cachedRecommendations) {
+      // Use cached result
+      await handleSendEmail();
+      setDestinations(JSON.parse(cachedRecommendations));
+      setLoading(false);
+      return;
+    }
 
     try {
       const result = await getRecommendations(savedAnswers);
 
+      // Save to state and cache
       setDestinations(result);
+      localStorage.setItem("cachedRecommendations", JSON.stringify(result));
+      await handleSendEmail();
     } catch (err) {
       console.error("Failed to fetch recommendations:", err);
     } finally {
       setLoading(false);
     }
   };
+
+  const handleSendEmail = async () => {
+  const email = "ahsenrasheedsh@gmail.com"; // get this from user input
+  const answers = JSON.parse(localStorage.getItem('cachedRecommendations') || '{}');
+
+  try {
+    await sendAnswersToEmail(email, answers);
+    alert("Email sent!");
+  } catch (err) {
+    alert("Failed to send email.");
+  }
+};
 
   return (
     <div className="results-container">
