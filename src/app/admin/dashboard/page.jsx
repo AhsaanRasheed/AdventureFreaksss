@@ -176,6 +176,14 @@ export default function AdminPage() {
     setHasUnsavedChanges(true);
   };
 
+  const handleToggleTextOnly = () => {
+    setEditingQuestion({
+      ...editingQuestion,
+      isTextOnly: !editingQuestion.isTextOnly,
+    });
+    setHasUnsavedChanges(true);
+  };
+
   const handleAddQuestion = async () => {
     const newQuestion = {
       text: "New Question",
@@ -300,6 +308,7 @@ export default function AdminPage() {
       handleToggleOtherField={handleToggleOtherField}
       handleAddQuestion={handleAddQuestion}
       handleDeleteQuestion={handleDeleteQuestion}
+      handleToggleTextOnly={handleToggleTextOnly}
       // handleExportQuestions={handleExportQuestions}
       // handleImportQuestions={handleImportQuestions}
     />

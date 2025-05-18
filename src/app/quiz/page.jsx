@@ -226,13 +226,7 @@ export default function QuizApp() {
     return answers.includes(option.text);
   };
 
-  const findOtherOption = () => {
-    if (!currentQuestion || !currentQuestion.options) return null;
-
-    return currentQuestion.options.find(
-      (option) => option.text.toLowerCase().includes("other") || option.isOther
-    );
-  };
+  
 
   const isOtherSelected = () => {
     if (!currentQuestion) return false;
