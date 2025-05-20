@@ -56,7 +56,7 @@ export default function AdminLogin() {
         if (res.error) {
           setLoginError('Invalid credentials');
         } else {
-          router.push('/admin/dashboard'); // adjust this if your dashboard is at a different route
+          router.push('/admin/dashboard'); 
         }
         }, 1000)
       }
