@@ -67,45 +67,27 @@ export default function AdminPage() {
     setPendingQuestionIndex(null);
   };
 
-  const handleCancelEditing = () => {
-    setEditingQuestion(
-      JSON.parse(JSON.stringify(questions[currentQuestionIndex]))
-    );
+  const handleCancelEditing = async () => {
+    const currentQuestion = questions[currentQuestionIndex];
+
+    if (currentQuestion.isNew) {
+      // Refetch questions from backend to discard the unsaved one
+      await getQuestions();
+
+      // Reset index and editing state
+      setCurrentQuestionIndex(0); // or any appropriate fallback
+      setEditingQuestion(null);
+    } else {
+      // Restore previous question state
+      setEditingQuestion(JSON.parse(JSON.stringify(currentQuestion)));
+    }
+
     setIsEditing(false);
     setHasUnsavedChanges(false);
   };
 
   const handleSaveQuestion = () => {
     setShowSaveConfirmDialog(true);
-  };
-
-  const handleConfirmSave = async () => {
-    try {
-      // Update on the backend
-      await updateQuestion(
-        editingQuestion._id, // or questionId
-        editingQuestion.text, // updated question text
-        editingQuestion.options, // updated answers/options
-        editingQuestion.isMultiSelect, // updated isMultiSelect
-        editingQuestion.enableOtherField, // updated enableOtherField
-        editingQuestion.isTextOnly // updated isTextOnly
-      );
-
-      // Update in UI
-      await getQuestions();
-
-      setIsEditing(false);
-      setHasUnsavedChanges(false);
-      setShowSaveConfirmDialog(false);
-
-      setShowSaveNotification(true);
-      setTimeout(() => {
-        setShowSaveNotification(false);
-      }, 3000);
-    } catch (error) {
-      console.error("Failed to save changes:", error);
-      setError("Failed to save changes.");
-    }
   };
 
   const handleCancelSave = () => {
@@ -160,7 +142,7 @@ export default function AdminPage() {
 
   const handleToggleMultiSelect = () => {
     console.log("Toggle multi-select", !editingQuestion.isMultiSelect);
-    
+
     setEditingQuestion({
       ...editingQuestion,
       isMultiSelect: !editingQuestion.isMultiSelect,
@@ -191,22 +173,47 @@ export default function AdminPage() {
       isMultiSelect: false,
       enableOtherField: false,
       isTextOnly: false,
+      isNew: true,
     };
 
+    const updatedQuestions = [...questions, newQuestion];
+    setQuestions(updatedQuestions);
+    setCurrentQuestionIndex(updatedQuestions.length - 1);
+    setEditingQuestion(newQuestion);
+    handleStartEditing();
+  };
+
+  const handleConfirmSave = async () => {
     try {
-      await createQuestion(
-        newQuestion.text,
-        newQuestion.options,
-        newQuestion.isMultiSelect,
-        newQuestion.enableOtherField,
-        newQuestion.isTextOnly
-      );
-      const updatedQuestions = [...questions, newQuestion];
-      await getQuestions();
-      setCurrentQuestionIndex(updatedQuestions.length - 1);
-      handleStartEditing();
+      if (editingQuestion.isNew) {
+        await createQuestion(
+          editingQuestion.text,
+          editingQuestion.options,
+          editingQuestion.isMultiSelect,
+          editingQuestion.enableOtherField,
+          editingQuestion.isTextOnly
+        );
+      } else {
+        await updateQuestion(
+          editingQuestion._id,
+          editingQuestion.text,
+          editingQuestion.options,
+          editingQuestion.isMultiSelect,
+          editingQuestion.enableOtherField,
+          editingQuestion.isTextOnly
+        );
+      }
+
+      await getQuestions(); // Refresh the list after save
+
+      setIsEditing(false);
+      setHasUnsavedChanges(false);
+      setShowSaveConfirmDialog(false);
+      setShowSaveNotification(true);
+      setTimeout(() => setShowSaveNotification(false), 3000);
     } catch (error) {
-      setError("Failed to add question. Please try again later.");
+      console.error("Failed to save changes:", error);
+      setError("Failed to save changes.");
     }
   };
 
