@@ -249,40 +249,7 @@ export default function AdminPage() {
     }
   };
 
-  // const handleExportQuestions = () => {
-  //   const dataStr = JSON.stringify(questions, null, 2)
-  //   const dataUri = "data:application/json;charset=utf-8," + encodeURIComponent(dataStr)
-
-  //   const exportFileDefaultName = "quiz-questions.json"
-
-  //   const linkElement = document.createElement("a")
-  //   linkElement.setAttribute("href", dataUri)
-  //   linkElement.setAttribute("download", exportFileDefaultName)
-  //   linkElement.click()
-  // }
-
-  // Import questions from JSON file (if needed)
-  // const handleImportQuestions = (e) => {
-  //   const file = e.target.files[0]
-  //   if (!file) return
-
-  //   const reader = new FileReader()
-  //   reader.onload = (e) => {
-  //     try {
-  //       const importedQuestions = JSON.parse(e.target.result)
-  //       if (Array.isArray(importedQuestions) && importedQuestions.length > 0) {
-  //         setQuestions(importedQuestions)
-  //         setCurrentQuestionIndex(0)
-  //       } else {
-  //         alert("Invalid question format. Please import a valid JSON file.")
-  //       }
-  //     } catch (error) {
-  //       alert("Error parsing JSON file: " + error.message)
-  //     }
-  //   }
-  //   reader.readAsText(file)
-  // }
-
+  
   return (
     <AdminQuizEditor
       questions={questions}
@@ -316,8 +283,6 @@ export default function AdminPage() {
       handleAddQuestion={handleAddQuestion}
       handleDeleteQuestion={handleDeleteQuestion}
       handleToggleTextOnly={handleToggleTextOnly}
-      // handleExportQuestions={handleExportQuestions}
-      // handleImportQuestions={handleImportQuestions}
     />
   );
 }
