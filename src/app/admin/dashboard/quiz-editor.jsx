@@ -131,9 +131,6 @@ export default function AdminQuizEditor({
               Logout
             </button>
           </div>
-          {/* <button className="admin-action-button" onClick={handleExportQuestions}>
-            Export Questions
-          </button> */}
         </div>
       </div>
 
