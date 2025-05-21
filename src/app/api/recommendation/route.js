@@ -39,11 +39,12 @@ export async function POST(req) {
     let result
 
     try {
-      result = JSON.parse(reply)
+      result = reply
     } catch (e) {
       console.error('Failed to parse JSON reply from OpenAI:', reply)
       result = []
     }
+    console.log("NextResponse:", NextResponse.json( result))
 
     return NextResponse.json({ result })
   } catch (error) {
@@ -56,21 +57,59 @@ function generatePrompt(questions) {
   return `
 Based on the following responses to a lifestyle and travel quiz, recommend the top 3 countries that best suit the user’s preferences.
 
-Do NOT just suggest countries selected by the user — include better matches if relevant.
+Do NOT just suggest countries selected by the user — include better budget-friendly and environmentally friendly matches if relevant.
 
-Each recommendation should include 4–6 short reasons.
+Write a complete professional Personalized Relocation Report using the data and answers provided by the user and include user's name in the report title. The subtitle of report should be in a smaller font saying "Curated by Ré from Adventure Freaksss"
+Show the top 3 countries as top picks, displaying each recommendation separately with country name, short attractive subheading, description, important points which describe benefits and other needs that meet user's preferences and in the end mentiona section which says "Why it's a fit for you". 
+Conclude the report with final thoughts with summarizing the countries benefits in a table like format which shows, which country has what by marking tick, and which one suits the best.
 
-Return your answer strictly in this JSON format:
+Generate the response as asked **strictly in the following JSON format** (do not include any markdown or prose before or after the JSON):
 
-[
-  {
-    "name": "Country Name",
-    "matches": ["reason 1", "reason 2", "reason 3", ...]
+{
+  "title": "",
+  "subtitle": "",
+  "introduction": "",
+  "topPicks": {
+    "country1": {
+      "name": "",
+      "subheading": "",
+      "description": "",
+      "importantPoints": [],
+      "whyFits": ""
+    },
+    "country2": {
+      "name": "",
+      "subheading": "",
+      "description": "",
+      "importantPoints": [],
+      "whyFits": ""
+    },
+    "country3": {
+      "name": "",
+      "subheading": "",
+      "description": "",
+      "importantPoints": [],
+      "whyFits": ""
+    }
   },
-  ...
-]
+  "finalThoughts": {
+    "description": "",
+    "comparisonTable": {
+      "factors": [],
+      "country1": [],
+      "country2": [],
+      "country3": []
+    },
+    "conclusion": ""
+  },
+  "footer": {
+    "regards": "Warmly,",
+    "founder": "Ré",
+    "signature": "Adventure Freaksss – Affordable Living Abroad Made Easy"
+  }
+}
 
-The user has answered:
+Use the following user answers to guide the recommendations:
 ${questions}
 `
 }

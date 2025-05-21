@@ -3,15 +3,11 @@ import nodemailer from 'nodemailer';
 
 export async function POST(req) {
   try {
-    const { email, answers } = await req.json();
+    const { email, htmlContent } = await req.json();
 
-    if (!email || !answers) {
+    if (!email || !htmlContent) {
       return NextResponse.json({ error: "Missing email or answers" }, { status: 400 });
     }
-
-    const formattedAnswers = Object.entries(answers)
-      .map(([question, answer]) => `<p><strong>${question}</strong>: ${answer}</p>`)
-      .join("");
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -24,15 +20,15 @@ export async function POST(req) {
     const userMail = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: 'Your Quiz Answers',
-      html: `<div><h2>Your Quiz Answers</h2>${formattedAnswers}</div>`,
+      subject: 'Your Destination Recommendations',
+      html: htmlContent,
     };
 
     const adminMail = {
       from: process.env.EMAIL_USER,
       to: process.env.ADMIN_EMAIL, // send to admin
       subject: `New Quiz Submission from ${email}`,
-      html: `<div><h2>Quiz Submission from ${email}</h2>${formattedAnswers}</div>`,
+      html: htmlContent,
     };
 
     // Send to user

@@ -430,6 +430,47 @@ button:disabled {
   color: #6c757d;
 }
 
+/* Contact info form styles */
+.contact-info-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 10px 0;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: bold;
+  color: #333;
+  font-size: 16px;
+}
+
+.contact-input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.2s;
+}
+
+.contact-input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.email-error {
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .quiz-container {

@@ -25,6 +25,9 @@ export default function QuizApp() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
 
   const formatAnswersForAI = () => {
     let formattedString = "";
@@ -53,10 +56,17 @@ export default function QuizApp() {
 
   const getQuizQuestions = async () => {
     try {
+      const initialQuestion = {
+        id: "1",
+        text: "Please provide your name and email",
+        options: [],
+        isMultiSelect: false,
+        enableOtherField: false,
+        isTextOnly: false,
+      }
       const data = await fetchQuestions();
       const formattedData = data.map((question) => {
         const processedOptions = question.options.map((option, index) => {
-          // Generate option ID (A, B, C, etc.) based on index
           const optionId = String.fromCharCode(65 + index);
           return {
             id: optionId,
@@ -81,16 +91,17 @@ export default function QuizApp() {
           isTextOnly: question.isTextOnly,
         };
       });
-      setQuestions(formattedData); // Set the formatted quiz data
+      const allQuestions = [initialQuestion, ...formattedData]
+      setQuestions(allQuestions);
     } catch (err) {
-      setError(err.message); // Handle any errors
+      setError(err.message); 
     } finally {
-      setLoading(false); // Stop loading once the data is fetched
+      setLoading(false); 
     }
   };
 
   useEffect(() => {
-    getQuizQuestions(); // Call the function to fetch quiz questions
+    getQuizQuestions(); 
   }, []);
 
   useEffect(() => {
@@ -154,6 +165,46 @@ export default function QuizApp() {
 
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
+
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return re.test(String(email).toLowerCase())
+  }
+
+  const handleNameChange = (e) => {
+    setName(e.target.value)
+
+    const questionText = "User name and email"
+    updateContactInfo(questionText, e.target.value, email)
+  }
+
+  const handleEmailChange = (e) => {
+    const newEmail = e.target.value
+    setEmail(newEmail)
+    if (newEmail && !validateEmail(newEmail)) {
+      setEmailError("Please enter a valid email address")
+    } else {
+      setEmailError("")
+    }
+
+    const questionText = "User name and email"
+    updateContactInfo(questionText, name, newEmail)
+  }
+
+   const updateContactInfo = (questionText, name, email) => {
+    if (name.trim() !== "" && email.trim() !== "" && validateEmail(email)) {
+      setUserAnswers((prev) => ({
+        ...prev,
+        [questionText]: [`Name: ${name}, Email: ${email}`],
+      }))
+    } else {
+      setUserAnswers((prev) => {
+        const updated = { ...prev }
+        delete updated[questionText]
+        return updated
+      })
+    }
+  }
 
   const handleOptionSelect = (optionId) => {
     if (!currentQuestion) return;
@@ -236,19 +287,23 @@ export default function QuizApp() {
   };
 
   const isCurrentQuestionAnswered = () => {
-    if (!currentQuestion) return false;
+    if (!currentQuestion) return false
 
-    const questionText = currentQuestion.text;
+    const questionText = currentQuestion.text
 
-    if (!userAnswers[questionText] || userAnswers[questionText].length === 0)
-      return false;
+    if (currentQuestionIndex == 0) {
+      return name.trim() !== "" && email.trim() !== "" && !emailError
+    }
+
+    if (!userAnswers[questionText] || userAnswers[questionText].length === 0) return false
 
     if (isOtherSelected()) {
-      const otherText = otherInputs[questionText];
-      return otherText && otherText.trim() !== "";
+      const otherText = otherInputs[questionText]
+      return otherText && otherText.trim() !== ""
     }
-    return true;
-  };
+    
+    return true
+  }
 
   const goToNextQuestion = () => {
     if (
@@ -402,7 +457,33 @@ export default function QuizApp() {
 
           <div className="options-container-wrapper">
             <div className="options-container">
-              {currentQuestion.isTextOnly ? (
+              {
+                currentQuestionIndex==0 ? (
+                <div className="contact-info-container">
+                  <div className="form-group">
+                    <input
+                      type="text"
+                      id="name"
+                      className="contact-input"
+                      placeholder="Enter your name"
+                      value={name}
+                      onChange={handleNameChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <input
+                      type="email"
+                      id="email"
+                      className="contact-input"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={handleEmailChange}
+                    />
+                    {emailError && <div className="email-error">{emailError}</div>}
+                  </div>
+                </div>
+              ) : 
+              currentQuestion.isTextOnly ? (
                 <div className="text-input-container">
                   <textarea
                     className="text-input"
@@ -458,7 +539,9 @@ export default function QuizApp() {
             <div className={`navigation-helper ${showHelper ? "visible" : ""}`}>
               {helperMessage}
             </div>
-            {isLastQuestion ? (
+            {
+            
+            isLastQuestion ? (
               <button
                 className="finish-button"
                 onClick={handleFinish}
@@ -472,7 +555,7 @@ export default function QuizApp() {
                 onClick={goToNextQuestion}
                 disabled={!isCurrentQuestionAnswered()}
               >
-                Next
+               { currentQuestionIndex == 0 ? "Start Quiz" : "Next"}
               </button>
             )}
           </div>
