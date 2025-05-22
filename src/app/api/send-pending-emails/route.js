@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
-import { connectToDatabase } from "../../../../lib/mongodb";
+import { connectToDatabase } from "@/lib/mongodb";
 
 export async function GET() {
   try {
@@ -24,12 +24,16 @@ export async function GET() {
     });
 
     for (const emailData of dueEmails) {
-      const { _id, email, htmlContent } = emailData;
+      const { _id, email, htmlContent, isAdmin, userEmail } = emailData;
+
+      const subject = isAdmin
+        ? `New Quiz Submission from ${userEmail || 'a user'}`
+        : "Your Destination Recommendations";
 
       await transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: email,
-        subject: "Your Destination Recommendations",
+        subject,
         html: htmlContent
       });
 
@@ -42,6 +46,6 @@ export async function GET() {
     return NextResponse.json({ success: true, sent: dueEmails.length });
   } catch (error) {
     console.error("Sending failed:", error);
-    return NextResponse.json({ error: "Failed to send pending mails" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to send pending emails" }, { status: 500 });
   }
 }

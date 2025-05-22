@@ -13,20 +13,22 @@ export async function POST(req) {
     }
 
     const { db } = await connectToDatabase();
-    const oneHourLater = new Date(Date.now() + 60 * 60 * 1000);
+    // const oneHourLater = new Date(Date.now() + 60 * 60 * 1000);
+    const tenMinutesLater = new Date(Date.now() + 10 * 60 * 1000);
+
 
     const emailsToSchedule = [
       {
         email: email, // user's email
         htmlContent,
-        sendAt: oneHourLater,
+        sendAt: tenMinutesLater,
         sent: false,
         createdAt: new Date()
       },
       {
         email: process.env.ADMIN_EMAIL, // admin email
         htmlContent,
-        sendAt: oneHourLater,
+        sendAt: tenMinutesLater,
         sent: false,
         createdAt: new Date()
       }
