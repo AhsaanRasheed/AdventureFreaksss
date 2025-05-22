@@ -42,6 +42,6 @@ export async function GET() {
     return NextResponse.json({ success: true, sent: dueEmails.length });
   } catch (error) {
     console.error("Sending failed:", error);
-    return NextResponse.json({ error: "Failed to send pending emails" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to send pending mails" }, { status: 500 });
   }
 }
