@@ -36,7 +36,7 @@ export async function POST(req) {
 
     await db.collection("scheduledEmails").insertMany(emailsToSchedule);
 
-    return NextResponse.json({ success: true, message: "Emails scheduled successfully" });
+    return NextResponse.json({ success: true, message: "Email scheduled successfully" });
   } catch (error) {
     console.error("Scheduling failed:", error);
     return NextResponse.json({ error: "Failed to schedule emails" }, { status: 500 });
