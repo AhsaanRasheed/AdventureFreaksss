@@ -55,13 +55,15 @@ export async function POST(req) {
 
 function generatePrompt(questions) {
   return `
-Based on the following responses to a lifestyle and travel quiz, recommend the top 3 countries that best suit the user’s preferences.
+You are a Travel Advisor and based on the following responses to a lifestyle and travel quiz, recommend the top 3 countries that best suit the user’s preferences.
 
-Do NOT just suggest countries selected by the user — include better budget-friendly and environmentally friendly matches if relevant.
+Do NOT only just suggest countries selected by the user — include better budget-friendly and environmentally friendly matches if relevant.
 
 Write a complete professional Personalized Relocation Report using the data and answers provided by the user and include user's name in the report title. The subtitle of report should be in a smaller font saying "Curated by Ré from Adventure Freaksss"
 Show the top 3 countries as top picks, displaying each recommendation separately with country name, short attractive subheading, description, important points which describe benefits and other needs that meet user's preferences and in the end mentiona section which says "Why it's a fit for you". 
 Conclude the report with final thoughts with summarizing the countries benefits in a table like format which shows, which country has what by marking tick, and which one suits the best.
+
+For each of the top 3 recommended countries, ensure the user meets the eligibility criteria for at least one viable long-stay visa or residency option. Do not recommend a country if the user does not qualify for any available visa based on their income, age, nationality, or other required criteria.
 
 Generate the response as asked **strictly in the following JSON format** (do not include any markdown or prose before or after the JSON):
 
