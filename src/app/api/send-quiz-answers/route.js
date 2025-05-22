@@ -4,44 +4,44 @@ import { NextResponse } from 'next/server';
 // import { NextResponse } from "next/server";
 import { connectToDatabase } from "../../../../lib/mongodb";
 
-export async function POST(req) {
-  try {
-    const { email, htmlContent } = await req.json();
+// export async function POST(req) {
+//   try {
+//     const { email, htmlContent } = await req.json();
 
-    if (!email || !htmlContent) {
-      return NextResponse.json({ error: "Missing email or content" }, { status: 400 });
-    }
+//     if (!email || !htmlContent) {
+//       return NextResponse.json({ error: "Missing email or content" }, { status: 400 });
+//     }
 
-    const { db } = await connectToDatabase();
-    // const oneHourLater = new Date(Date.now() + 60 * 60 * 1000);
-    const tenMinutesLater = new Date(Date.now() + 10 * 60 * 1000);
+//     const { db } = await connectToDatabase();
+//     // const oneHourLater = new Date(Date.now() + 60 * 60 * 1000);
+//     const tenMinutesLater = new Date(Date.now() + 10 * 60 * 1000);
 
 
-    const emailsToSchedule = [
-      {
-        email: email, // user's email
-        htmlContent,
-        sendAt: tenMinutesLater,
-        sent: false,
-        createdAt: new Date()
-      },
-      {
-        email: process.env.ADMIN_EMAIL, // admin email
-        htmlContent,
-        sendAt: tenMinutesLater,
-        sent: false,
-        createdAt: new Date()
-      }
-    ];
+//     const emailsToSchedule = [
+//       {
+//         email: email, // user's email
+//         htmlContent,
+//         sendAt: tenMinutesLater,
+//         sent: false,
+//         createdAt: new Date()
+//       },
+//       {
+//         email: process.env.ADMIN_EMAIL, // admin email
+//         htmlContent,
+//         sendAt: tenMinutesLater,
+//         sent: false,
+//         createdAt: new Date()
+//       }
+//     ];
 
-    await db.collection("scheduledEmails").insertMany(emailsToSchedule);
+//     await db.collection("scheduledEmails").insertMany(emailsToSchedule);
 
-    return NextResponse.json({ success: true, message: "Email scheduled successfully" });
-  } catch (error) {
-    console.error("Scheduling failed:", error);
-    return NextResponse.json({ error: "Failed to schedule emails" }, { status: 500 });
-  }
-}
+//     return NextResponse.json({ success: true, message: "Email scheduled successfully" });
+//   } catch (error) {
+//     console.error("Scheduling failed:", error);
+//     return NextResponse.json({ error: "Failed to schedule emails" }, { status: 500 });
+//   }
+// }
 
 
 
@@ -87,3 +87,43 @@ export async function POST(req) {
 //     return NextResponse.json({ error: "Email send failed" }, { status: 500 });
 //   }
 // }
+
+
+export async function POST(req) {
+  try {
+    const { email, htmlContent } = await req.json();
+
+    if (!email || !htmlContent) {
+      return NextResponse.json({ error: "Missing email or content" }, { status: 400 });
+    }
+
+    const { db } = await connectToDatabase();
+    // const oneHourLater = new Date(Date.now() + 60 * 60 * 1000);
+    const tenMinutesLater = new Date(Date.now() + 10 * 60 * 1000);
+
+
+    const emailsToSchedule = [
+      {
+        email: email, // user's email
+        htmlContent,
+        sendAt: tenMinutesLater,
+        sent: false,
+        createdAt: new Date()
+      },
+      {
+        email: process.env.ADMIN_EMAIL, // admin email
+        htmlContent,
+        sendAt: tenMinutesLater,
+        sent: false,
+        createdAt: new Date()
+      }
+    ];
+
+    await db.collection("scheduledEmails").insertMany(emailsToSchedule);
+
+    return NextResponse.json({ success: true, message: "Email scheduled successfully" });
+  } catch (error) {
+    console.error("Scheduling failed:", error);
+    return NextResponse.json({ error: "Failed to schedule emails" }, { status: 500 });
+  }
+}
