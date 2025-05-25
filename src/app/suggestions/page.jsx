@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import "../suggestions/styles.css";
 import "../globals.css";
 import Image from "next/image";
@@ -9,13 +8,8 @@ import logo from "../assets/logo.png";
 import { getRecommendations, sendAnswersToEmail } from "../../../lib/service";
 
 export default function ResultsPage() {
-  const router = useRouter();
-  const [destinations, setDestinations] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const resultsRef = useRef(null);
-
+  // const [destinations, setDestinations] = useState([]);
+  // const [loading, setLoading] = useState(true);
   useEffect(() => {
     fetchRecommendations();
   }, []);
@@ -28,8 +22,8 @@ export default function ResultsPage() {
 
     if (cachedRecommendations) {
       // await handleSendEmail();
-      setDestinations(JSON.parse(cachedRecommendations));
-      setLoading(false);
+      // setDestinations(JSON.parse(cachedRecommendations));
+      // setLoading(false);
       return;
     }
 
@@ -65,7 +59,7 @@ export default function ResultsPage() {
         },
       };
 
-      setDestinations(formattedDestinations);
+      // setDestinations(formattedDestinations);
       localStorage.setItem(
         "cachedRecommendations",
         JSON.stringify(formattedDestinations)
@@ -75,7 +69,7 @@ export default function ResultsPage() {
     } catch (err) {
       console.error("Failed to fetch or parse recommendations:", err);
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   };
 
@@ -86,19 +80,12 @@ export default function ResultsPage() {
 
     try {
       await sendAnswersToEmail(email, formattedDestinations);
-      setSnackbarMessage("Report sent to your email! ✉️");
-      setShowSnackbar(true);
-      setTimeout(() => setShowSnackbar(false), 3000);
     } catch (err) {
-      setSnackbarMessage("Failed to send email. Please try again.");
-      setShowSnackbar(true);
-      setTimeout(() => setShowSnackbar(false), 3000);
+      console.log("Failed to send email:", err);
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
+
 
   return (
     <div className="results-container">
@@ -112,29 +99,22 @@ export default function ResultsPage() {
           />
         </div>
         <h1>Find your Destination</h1>
-        <div className="action-buttons">
-          {/* <button
-            className="action-button email-button"
-            onClick={handleSendEmail}
-          >
-            <span className="button-icon">✉️</span> Email Report
-          </button> */}
-          {/* <button
-            className="action-button screenshot-button"
-            onClick={handlePrint}
-          >
-            <span className="button-icon">🖨️</span> Print
-          </button> */}
-        </div>
+        <div className="action-buttons"></div>
       </header>
       <main className="results-main">
         <div className="report-container">
-           <h2 className="report-title">Thankyou for completing the ideal Destination Finder!</h2>
-          <p className="report-subtitle">We’ve received your responses and payment, and your personalized report is now being carefully prepared based on the information you shared.
-
-          In approximately one hour, you’ll receive your custom report via email, featuring our top recommended destination—plus two additional locations that closely match your preferences.
-
-          We’re excited to help you take the next step toward a better life abroad. Thanks again for your trust in AdventureFreaksss—your ideal destinations are on the way!
+          <h2 className="report-title">
+            Thankyou for completing the ideal Destination Finder!
+          </h2>
+          <p className="report-subtitle">
+            We’ve received your responses and payment, and your personalized
+            report is now being carefully prepared based on the information you
+            shared. In approximately one hour, you’ll receive your custom report
+            via email, featuring our top recommended destination—plus two
+            additional locations that closely match your preferences. We’re
+            excited to help you take the next step toward a better life abroad.
+            Thanks again for your trust in AdventureFreaksss—your ideal
+            destinations are on the way!
           </p>
         </div>
       </main>
@@ -142,15 +122,6 @@ export default function ResultsPage() {
       <footer className="results-footer">
         <p>Copyright © 2025 Adventure Freaksss</p>
       </footer>
-
-      {showSnackbar && (
-        <div className="snackbar">
-          <div className="snackbar-content">
-            <span className="snackbar-icon">✓</span>
-            {snackbarMessage}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
