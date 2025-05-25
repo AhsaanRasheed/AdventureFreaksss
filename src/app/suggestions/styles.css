@@ -154,8 +154,10 @@ body {
 
 /* Report Container */
 .report-container {
+  margin-top: 24px;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 30px;
 }
 
@@ -174,6 +176,9 @@ body {
 .report-subtitle {
   font-size: 18px;
   color: #666;
+  text-align: center;
+  padding-inline: 40px;
+  line-height: 30px;
 }
 
 .report-introduction {

@@ -617,6 +617,32 @@ input:focus {
   line-height: 1.6;
 }
 
+.custom-checkbox:checked + .checkbox-checkmark svg {
+  animation: checkboxCheck 0.2s ease-in-out;
+  color: #f57c00;
+}
+.disclaimer-container {
+    padding-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    gap: 20px;
+  }
+
+  .disclaimer-text {
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+  .checkbox-checkmark {
+    height: 18px;
+    width: 18px;
+    color: #f57c00;
+    border-color: #f57c00;
+    background-color: #f57c00;
+  }
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .quiz-container {

@@ -9,6 +9,7 @@ import {
 } from "@stripe/react-stripe-js";
 
 import convertToSubcurrency from "../lib/convertToSubcurrency";
+import "../src/app/globals.css";
 
 const CheckoutPage = ({ amount }) => {
   const stripe = useStripe();
@@ -19,7 +20,8 @@ const CheckoutPage = ({ amount }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState("processing");
-  const [isPaymentElementComplete, setIsPaymentElementComplete] = useState(false); 
+  const [isPaymentElementComplete, setIsPaymentElementComplete] = useState(false);
+  const [isCheckboxChecked, setCheckBoxChecked] = useState(false); 
 
   useEffect(() => {
     fetch("/api/create-payment-intent", {
@@ -58,7 +60,7 @@ const CheckoutPage = ({ amount }) => {
       clientSecret,
       confirmParams: {
         // return_url: "https://adventure-freaksss.vercel.app/suggestions",
-        return_url: "https://quiz.adventurefreaksss.com/suggestions",
+        return_url: "http://localhost:3000/suggestions",
       },
     });
 
@@ -76,6 +78,11 @@ const CheckoutPage = ({ amount }) => {
     }
 
     setIsLoading(false);
+  };
+
+  const handleCheckboxChange = (e) => {
+    const checked = e.target.checked;
+    setCheckBoxChecked(checked);
   };
 
   if (!clientSecret || !stripe || !elements) {
@@ -96,9 +103,26 @@ const CheckoutPage = ({ amount }) => {
         />
       )}
       {errorMessage && <div style="error-message">{errorMessage}</div>}
+      {/* Enhanced Checkbox Section */}
+      <div className="disclaimer-container">
+          <span className="checkbox-wrapper">
+            <input
+              type="checkbox"
+              id="checkbox"
+              checked={isCheckboxChecked}
+              onChange={handleCheckboxChange}
+              className="checkbox-checkmark"
+            />
+            
+          </span>
+          <span className="disclaimer-text">
+            I understand this report is for informational purposes only and does not guarantee visa eligibility. I
+            acknowledge it is my responsibility to verify visa requirements with official sources.
+          </span>
+      </div>
       <div style={{ marginTop: "1rem" }}>
         <button
-          disabled={!stripe || isLoading || !isPaymentElementComplete} 
+          disabled={!stripe || isLoading || !isPaymentElementComplete || !isCheckboxChecked} 
           className="pay-now-button"
         >
           {isLoading ? "Processing..." : `Pay $${amount}`}

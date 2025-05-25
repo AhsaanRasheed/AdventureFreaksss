@@ -100,90 +100,6 @@ export default function ResultsPage() {
     window.print();
   };
 
-  const getCountryFlag = (countryName) => {
-    const flagMap = {
-      Bulgaria: "🇧🇬",
-      Romania: "🇷🇴",
-      Poland: "🇵🇱",
-      Portugal: "🇵🇹",
-      Spain: "🇪🇸",
-      Italy: "🇮🇹",
-      France: "🇫🇷",
-      Thailand: "🇹🇭",
-      "Costa Rica": "🇨🇷",
-      Mexico: "🇲🇽",
-      Canada: "🇨🇦",
-      Japan: "🇯🇵",
-      Australia: "🇦🇺",
-      "New Zealand": "🇳🇿",
-      Germany: "🇩🇪",
-      Netherlands: "🇳🇱",
-      Sweden: "🇸🇪",
-      Norway: "🇳🇴",
-      Denmark: "🇩🇰",
-      Finland: "🇫🇮",
-      Iceland: "🇮🇸",
-      Switzerland: "🇨🇭",
-      Austria: "🇦🇹",
-      Greece: "🇬🇷",
-      Croatia: "🇭🇷",
-      Montenegro: "🇲🇪",
-      Malta: "🇲🇹",
-      Cyprus: "🇨🇾",
-      Panama: "🇵🇦",
-      Colombia: "🇨🇴",
-      Ecuador: "🇪🇨",
-      Peru: "🇵🇪",
-      Chile: "🇨🇱",
-      Argentina: "🇦🇷",
-      Brazil: "🇧🇷",
-      Indonesia: "🇮🇩",
-      Malaysia: "🇲🇾",
-      Vietnam: "🇻🇳",
-      Cambodia: "🇰🇭",
-      Philippines: "🇵🇭",
-      "South Korea": "🇰🇷",
-      Taiwan: "🇹🇼",
-      Singapore: "🇸🇬",
-      "South Africa": "🇿🇦",
-      Morocco: "🇲🇦",
-      Egypt: "🇪🇬",
-      Turkey: "🇹🇷",
-      "United Arab Emirates": "🇦🇪",
-      Qatar: "🇶🇦",
-      Bahrain: "🇧🇭",
-      Oman: "🇴🇲",
-      Jordan: "🇯🇴",
-      Israel: "🇮🇱",
-    };
-
-    return flagMap[countryName] || "🌍";
-  };
-
-  const getCategoryIcon = (category) => {
-    const iconMap = {
-      "Cost of Living": "💰",
-      "Work Visa Friendly": "📝",
-      "English-Friendly": "🗣️",
-      "Eco-Friendly": "🌱",
-      "Culture & Leisure": "🎭",
-      Healthcare: "🏥",
-      Safety: "🛡️",
-      Climate: "☀️",
-      Infrastructure: "🏗️",
-      Education: "🎓",
-      "Digital Nomad Friendly": "💻",
-      "Family Friendly": "👨‍👩‍👧‍👦",
-      Nightlife: "🌃",
-      "Food Scene": "🍽️",
-      "Outdoor Activities": "🏞️",
-      "Public Transport": "🚆",
-      "Internet Quality": "📶",
-    };
-
-    return iconMap[category] || "✨";
-  };
-
   return (
     <div className="results-container">
       <header className="results-header">
@@ -197,181 +113,30 @@ export default function ResultsPage() {
         </div>
         <h1>Find your Destination</h1>
         <div className="action-buttons">
-          <button
+          {/* <button
             className="action-button email-button"
             onClick={handleSendEmail}
           >
             <span className="button-icon">✉️</span> Email Report
-          </button>
-          <button
+          </button> */}
+          {/* <button
             className="action-button screenshot-button"
             onClick={handlePrint}
           >
             <span className="button-icon">🖨️</span> Print
-          </button>
+          </button> */}
         </div>
       </header>
+      <main className="results-main">
+        <div className="report-container">
+           <h2 className="report-title">Thankyou for completing the ideal Destination Finder!</h2>
+          <p className="report-subtitle">We’ve received your responses and payment, and your personalized report is now being carefully prepared based on the information you shared.
 
-      <main className="results-main" ref={resultsRef}>
-        {loading ? (
-          <div className="loading-container">
-            <div className="spinner"></div>
-            <p className="loading-text">
-              Generating your personalized recommendations...
-            </p>
-            <p className="loading-subtext">
-              We're analyzing your preferences to find your perfect destinations
-            </p>
-          </div>
-        ) : (
-          <div className="report-container">
-            {destinations && (
-              <>
-                <div className="report-header">
-                  <h2 className="report-title">{destinations.title}</h2>
-                  <p className="report-subtitle">{destinations.subtitle}</p>
-                </div>
+          In approximately one hour, you’ll receive your custom report via email, featuring our top recommended destination—plus two additional locations that closely match your preferences.
 
-                <div className="report-introduction">
-                  <p>{destinations.introduction}</p>
-                </div>
-
-                <div className="section-divider">
-                  <span className="divider-icon">✈️</span>
-                </div>
-
-                <h3 className="section-title">
-                  <span className="section-icon">🌟</span> Top Destinations for
-                  You
-                </h3>
-
-                <div className="country-cards">
-                  {destinations.topPicks &&
-                    destinations.topPicks.map((country) => (
-                      <div key={country.id} className="country-card">
-                        <div className="country-header">
-                          <div className="country-flag">
-                            {getCountryFlag(country.name)}
-                          </div>
-                          <h3 className="country-name">{country.name}</h3>
-                          <p className="country-subheading">
-                            {country.subheading}
-                          </p>
-                        </div>
-                        <p className="country-description">
-                          {country.description}
-                        </p>
-                        <div className="important-points">
-                          <h4>
-                            <span className="section-icon">✅</span> Key
-                            Benefits
-                          </h4>
-                          <ul className="benefits-list">
-                            {country.importantPoints.map((point, index) => (
-                              <li key={index} className="benefit-item">
-                                <span className="check-circle">✓</span>
-                                <span>{point}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div className="why-fits">
-                          <h4>
-                            <span className="section-icon">🎯</span> Why It's
-                            Perfect for You
-                          </h4>
-                          <p>{country.whyFits}</p>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-
-                <div className="section-divider">
-                  <span className="divider-icon">🧭</span>
-                </div>
-
-                {destinations.finalThoughts && (
-                  <div className="final-thoughts">
-                    <h3 className="section-title">
-                      <span className="section-icon">🤔</span> Final Thoughts
-                    </h3>
-                    <p className="thoughts-description">
-                      {destinations.finalThoughts.description}
-                    </p>
-
-                    {destinations.finalThoughts.comparisonTable &&
-                      destinations.finalThoughts.comparisonTable.factors && (
-                        <div className="comparison-table-container">
-                          <table className="comparison-table">
-                            <thead>
-                              <tr>
-                                <th>Factors</th>
-                                {destinations.topPicks.map((country) => (
-                                  <th key={country.id}>
-                                    {getCountryFlag(country.name)}{" "}
-                                    {country.name}
-                                  </th>
-                                ))}
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {destinations.finalThoughts.comparisonTable.factors.map(
-                                (factor, index) => (
-                                  <tr key={index}>
-                                    <td>
-                                      <span className="factor-icon">
-                                        {getCategoryIcon(factor)}
-                                      </span>{" "}
-                                      {factor}
-                                    </td>
-                                    {destinations.topPicks.map(
-                                      (country, countryIndex) => (
-                                        <td
-                                          key={`${country.id}-${index}`}
-                                          className="comparison-cell"
-                                        >
-                                          {
-                                            destinations.finalThoughts
-                                              .comparisonTable[
-                                              `country${countryIndex + 1}`
-                                            ][index]
-                                          }
-                                        </td>
-                                      )
-                                    )}
-                                  </tr>
-                                )
-                              )}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-
-                    <div className="conclusion">
-                      <h4>
-                        <span className="section-icon">🏆</span> Our
-                        Recommendation
-                      </h4>
-                      <p>{destinations.finalThoughts.conclusion}</p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="section-divider">
-                  <span className="divider-icon">📝</span>
-                </div>
-
-                {destinations.footer && (
-                  <div className="report-footer">
-                    <p>{destinations.footer.regards}</p>
-                    <p className="founder">{destinations.footer.founder}</p>
-                    <p className="signature">{destinations.footer.signature}</p>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        )}
+          We’re excited to help you take the next step toward a better life abroad. Thanks again for your trust in AdventureFreaksss—your ideal destinations are on the way!
+          </p>
+        </div>
       </main>
 
       <footer className="results-footer">
