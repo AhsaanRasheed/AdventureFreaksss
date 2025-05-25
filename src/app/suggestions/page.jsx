@@ -21,7 +21,7 @@ export default function ResultsPage() {
     const cachedRecommendations = localStorage.getItem("cachedRecommendations");
 
     if (cachedRecommendations) {
-      // await handleSendEmail();
+      await handleSendEmail(cachedRecommendations);
       // setDestinations(JSON.parse(cachedRecommendations));
       // setLoading(false);
       return;
