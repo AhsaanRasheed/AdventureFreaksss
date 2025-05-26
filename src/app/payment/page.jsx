@@ -18,7 +18,7 @@ if (process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY === undefined) {
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
 
 export default function PaymentScreen() {
-  const amount = 47;
+  const amount = 1;
 
   return (
     <div className="payment-container">

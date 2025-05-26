@@ -37,6 +37,8 @@ export default function QuizFunctions({
   otherInputs
 }) {
   useEffect(() => {
+    localStorage.removeItem("cachedRecommendations");
+    localStorage.removeItem("formattedAnswers");
     getQuizQuestions();
   }, []);
 
