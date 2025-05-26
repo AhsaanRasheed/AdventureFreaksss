@@ -60,7 +60,8 @@ const CheckoutPage = ({ amount }) => {
       clientSecret,
       confirmParams: {
         // return_url: "https://adventure-freaksss.vercel.app/suggestions",
-        return_url: "http://localhost:3000/suggestions",
+        return_url: "http://quiz.adventurefreaksss.com/suggestions",
+        // return_url: "http://localhost:3000/suggestions",
       },
     });
 
