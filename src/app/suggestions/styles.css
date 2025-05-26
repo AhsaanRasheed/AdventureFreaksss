@@ -169,6 +169,7 @@ body {
 .report-title {
   font-size: 32px;
   font-weight: bold;
+  text-align: center;
   color: #333;
   margin-bottom: 10px;
 }
@@ -611,4 +612,20 @@ body {
   .divider-icon {
     font-size: 20px;
   }
+
+  .report-title {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  color: #333;
+  padding-inline: 16px;
+}
+
+.report-subtitle {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  padding-inline: 16px;
+}
+
 }
