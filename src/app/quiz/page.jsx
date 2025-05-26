@@ -187,6 +187,9 @@ export default function QuizApp() {
 
     const questionText = currentQuestion.text;
     const text = e.target.value;
+    console.log(`Text input for question "${questionText}":`, text);
+    
+    
 
     setOtherInputs((prev) => ({ ...prev, [questionText]: text }));
 
@@ -196,7 +199,7 @@ export default function QuizApp() {
         if (text.trim() === "") {
           delete updated[questionText];
         } else {
-          updated[questionText] = ["TEXT_INPUT"];
+          updated[questionText] = [text];
         }
         return updated;
       });
@@ -303,7 +306,7 @@ export default function QuizApp() {
 
       // localStorage.setItem("quizAnswers", JSON.stringify(userAnswers));
       // localStorage.setItem("quizOtherInputs", JSON.stringify(otherInputs));
-      localStorage.removeItem("cachedRecommendations");
+      
       localStorage.setItem("formattedAnswers", formattedAnswers);
       router.push("/payment");
     } else {

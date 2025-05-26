@@ -21,6 +21,7 @@ export default function ResultsPage() {
     const cachedRecommendations = localStorage.getItem("cachedRecommendations");
 
     if (cachedRecommendations) {
+      
       await handleSendEmail(cachedRecommendations);
       // setDestinations(JSON.parse(cachedRecommendations));
       // setLoading(false);
@@ -65,7 +66,6 @@ export default function ResultsPage() {
         JSON.stringify(formattedDestinations)
       );
       await handleSendEmail(formattedDestinations);
-      console.log("Recommendations fetched and cached:", formattedDestinations);
     } catch (err) {
       console.error("Failed to fetch or parse recommendations:", err);
     } finally {
