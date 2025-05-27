@@ -303,7 +303,7 @@ export default function QuizApp() {
 
       // localStorage.setItem("quizAnswers", JSON.stringify(userAnswers));
       // localStorage.setItem("quizOtherInputs", JSON.stringify(otherInputs));
-      localStorage.removeItem("cachedRecommendations");
+      // localStorage.removeItem("cachedRecommendations");
       localStorage.setItem("formattedAnswers", formattedAnswers);
       router.push("/payment");
     } else {
