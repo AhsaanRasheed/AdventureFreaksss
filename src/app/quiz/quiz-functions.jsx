@@ -3,7 +3,6 @@ import "../quiz/quiz-styles.css";
 import "../globals.css";
 import Image from "next/image";
 import logo from "../assets/logo.png";
-import { fetchQuestions } from "../../../lib/service";
 
 export default function QuizFunctions({
   getQuizQuestions,
