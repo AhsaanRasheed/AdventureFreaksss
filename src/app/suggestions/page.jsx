@@ -8,32 +8,29 @@ import logo from "../assets/logo.png";
 import { getRecommendations, sendAnswersToEmail } from "../../../lib/service";
 
 export default function ResultsPage() {
-  // const [destinations, setDestinations] = useState([]);
-  // const [loading, setLoading] = useState(true);
   useEffect(() => {
     fetchRecommendations();
   }, []);
 
   const fetchRecommendations = async () => {
-    const savedAnswers = localStorage.getItem("formattedAnswers");
-    if (!savedAnswers) return;
+    const savedAnswersRaw = localStorage.getItem("formattedAnswers");
+    if (!savedAnswersRaw) return;
+
+    const savedAnswers = JSON.parse(savedAnswersRaw);
 
     const cachedRecommendations = localStorage.getItem("cachedRecommendations");
-
     if (cachedRecommendations) {
-      
-      await handleSendEmail(cachedRecommendations);
-      // setDestinations(JSON.parse(cachedRecommendations));
-      // setLoading(false);
+      // await handleSendEmail(cachedRecommendations);
+
       return;
     }
 
     try {
       const rawResult = await getRecommendations(savedAnswers);
+
       const parsed =
         typeof rawResult === "string" ? JSON.parse(rawResult) : rawResult;
 
-      // Format data to keep consistent structure
       const formattedDestinations = {
         title: parsed.title || "",
         subtitle: parsed.subtitle || "",
@@ -60,7 +57,6 @@ export default function ResultsPage() {
         },
       };
 
-      // setDestinations(formattedDestinations);
       localStorage.setItem(
         "cachedRecommendations",
         JSON.stringify(formattedDestinations)
@@ -69,14 +65,13 @@ export default function ResultsPage() {
     } catch (err) {
       console.error("Failed to fetch or parse recommendations:", err);
     } finally {
-      // setLoading(false);
     }
   };
 
   const handleSendEmail = async (formattedDestinations) => {
-    const userInfo = localStorage.getItem("formattedAnswers") || "";
-    const emailMatch = userInfo.match(/Email: ([^\s,]+)/);
-    const email = emailMatch[1];
+    const userInfoString = localStorage.getItem("formattedAnswers") || "";
+    const userInfo = JSON.parse(userInfoString);
+    const email = userInfo.email;
 
     try {
       await sendAnswersToEmail(email, formattedDestinations);
@@ -84,8 +79,6 @@ export default function ResultsPage() {
       console.log("Failed to send email:", err);
     }
   };
-
-
 
   return (
     <div className="results-container">
@@ -104,7 +97,7 @@ export default function ResultsPage() {
       <main className="results-main">
         <div className="report-container">
           <h2 className="report-title">
-            Thankyou for completing the ideal Destination Finder!
+            Thank you for completing the ideal Destination Finder!
           </h2>
           <p className="report-subtitle">
             We’ve received your responses and payment, and your personalized

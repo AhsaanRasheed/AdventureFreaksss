@@ -1,7 +1,5 @@
-import { NextResponse } from 'next/server';
-// import nodemailer from 'nodemailer';
-
-// import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import nodemailer from "nodemailer";
 import { connectToDatabase } from "../../../../lib/mongodb";
 
 export async function POST(req) {
@@ -9,41 +7,110 @@ export async function POST(req) {
     const { email, htmlContent } = await req.json();
 
     if (!email || !htmlContent) {
-      return NextResponse.json({ error: "Missing email or content" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing email or content" },
+        { status: 400 }
+      );
     }
 
-    const { db } = await connectToDatabase();
-    // const oneHourLater = new Date(Date.now() + 60 * 60 * 1000);
-    const tenMinutesLater = new Date(Date.now() + 10 * 60 * 1000);
+    // ✅ 1. Send instant thank-you email
+    const transporter = nodemailer.createTransport({
+      service: "gmail", // or another provider
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
 
+    const thankYouMailOptions = {
+      from: process.env.ADMIN_EMAIL,
+      to: email,
+      subject: "Thanks for taking the Adventure Freaksss Quiz!",
+      html: `
+        <h2>Hi there 👋</h2>
+        <p>Thank you for completing the Adventure Freaksss relocation quiz!</p>
+        <p>We’ve received your answers and are reviewing them to match you with ideal destinations.</p>
+        <p>In a few minutes, you'll get personalized suggestions based on your preferences. Stay tuned!</p>
+        <br/>
+        <p>— The Adventure Freaksss Team</p>
+      `,
+    };
+
+    await transporter.sendMail(thankYouMailOptions);
+
+    // ✅ 2. Schedule the follow-up email
+    const { db } = await connectToDatabase();
+    const sendAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
 
     const emailsToSchedule = [
       {
-        email: email, // user's email
+        email: email,
         htmlContent,
-        sendAt: tenMinutesLater,
+        sendAt,
         sent: false,
-        createdAt: new Date()
+        createdAt: new Date(),
       },
       {
-        email: process.env.ADMIN_EMAIL, // admin email
+        email: process.env.ADMIN_EMAIL,
         htmlContent,
-        sendAt: tenMinutesLater,
+        sendAt,
         sent: false,
-        createdAt: new Date()
-      }
+        createdAt: new Date(),
+      },
     ];
 
     await db.collection("scheduledEmails").insertMany(emailsToSchedule);
 
-    return NextResponse.json({ success: true, message: "Emails scheduled successfully" });
+    return NextResponse.json({
+      success: true,
+      message: "Instant email sent and follow-up scheduled",
+    });
   } catch (error) {
-    console.error("Scheduling failed:", error);
-    return NextResponse.json({ error: "Failed to schedule emails" }, { status: 500 });
+    console.error("Email sending or scheduling failed:", error);
+    return NextResponse.json(
+      { error: "Failed to send or schedule emails" },
+      { status: 500 }
+    );
   }
 }
 
+// export async function POST(req) {
+//   try {
+//     const { email, htmlContent } = await req.json();
 
+//     if (!email || !htmlContent) {
+//       return NextResponse.json({ error: "Missing email or content" }, { status: 400 });
+//     }
+
+//     const { db } = await connectToDatabase();
+//     // const oneHourLater = new Date(Date.now() + 60 * 60 * 1000);
+//     const tenMinutesLater = new Date(Date.now() + 5 * 60 * 1000);
+
+//     const emailsToSchedule = [
+//       {
+//         email: email, // user's email
+//         htmlContent,
+//         sendAt: tenMinutesLater,
+//         sent: false,
+//         createdAt: new Date()
+//       },
+//       {
+//         email: process.env.ADMIN_EMAIL, // admin email
+//         htmlContent,
+//         sendAt: tenMinutesLater,
+//         sent: false,
+//         createdAt: new Date()
+//       }
+//     ];
+
+//     await db.collection("scheduledEmails").insertMany(emailsToSchedule);
+
+//     return NextResponse.json({ success: true, message: "Emails scheduled successfully" });
+//   } catch (error) {
+//     console.error("Scheduling failed:", error);
+//     return NextResponse.json({ error: "Failed to schedule emails" }, { status: 500 });
+//   }
+// }
 
 // export async function POST(req) {
 //   try {
