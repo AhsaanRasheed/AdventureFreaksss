@@ -112,7 +112,7 @@ JSON format:
       "country2": ["✅", "✅", "❌", "✅", "✅"],
       "country3": ["✅", "❌", "✅", "✅", "✅"]
     },
-    "conclusion": "[Short closing summary and guidance]"
+    "conclusion": "[Warm, clear summary highlighting which country is the best overall match for the user based on their goals, why it fits best, and any secondary recommendations — written like personalized guidance and encouragement for their journey.]"
   },
   "footer": {
     "regards": "Warmly,",
