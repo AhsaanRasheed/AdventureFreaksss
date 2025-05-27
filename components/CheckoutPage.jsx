@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import "../src/app/payment/payment-styles.css"
+import "../src/app/payment/payment-styles.css";
 
 import {
   useStripe,
@@ -8,8 +8,8 @@ import {
   PaymentElement,
 } from "@stripe/react-stripe-js";
 
-import convertToSubcurrency from "../lib/convertToSubcurrency";
 import "../src/app/globals.css";
+import { createPaymentIntent } from "../lib/service";
 
 const CheckoutPage = ({ amount }) => {
   const stripe = useStripe();
@@ -20,64 +20,75 @@ const CheckoutPage = ({ amount }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState("processing");
-  const [isPaymentElementComplete, setIsPaymentElementComplete] = useState(false);
-  const [isCheckboxChecked, setCheckBoxChecked] = useState(false); 
+  const [isPaymentElementComplete, setIsPaymentElementComplete] =
+    useState(false);
+  const [isCheckboxChecked, setCheckBoxChecked] = useState(false);
 
   useEffect(() => {
-    fetch("/api/create-payment-intent", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ amount: convertToSubcurrency(amount) }),
-    })
-      .then((res) => res.json())
-      .then((data) => setClientSecret(data.clientSecret));
+    const fetchPaymentIntent = async () => {
+      const clientSecret = await createPaymentIntent(amount);
+      if (clientSecret) {
+        setClientSecret(clientSecret);
+      } else {
+        // Optional: handle UI fallback if needed
+        console.warn("Client secret not received. Possible error.");
+      }
+    };
+
+    fetchPaymentIntent();
   }, [amount]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setPaymentStatus("processing");
+    setErrorMessage(null); // Clear previous error
 
     if (!stripe || !elements) {
-      setPaymentStatus("error");
-      return;
-    }
-
-    const { error: submitError } = await elements.submit();
-
-    if (submitError) {
-      setErrorMessage(submitError.message);
+      setErrorMessage("Stripe has not loaded yet. Please wait and try again.");
       setIsLoading(false);
       return;
     }
 
-    setShowPaymentModal(true);
+    try {
+      const { error: submitError } = await elements.submit();
+      if (submitError) {
+        setErrorMessage(submitError.message);
+        setIsLoading(false);
+        return;
+      }
 
-    const { error } = await stripe.confirmPayment({
-      elements,
-      clientSecret,
-      confirmParams: {
-        // return_url: "https://adventure-freaksss.vercel.app/suggestions",
-        return_url: "http://localhost:3000/suggestions",
-      },
-    });
+      // Don't show modal until payment is confirmed
+      // setShowPaymentModal(true);
 
-    if (error) {
+      const { error } = await stripe.confirmPayment({
+        elements,
+        clientSecret,
+        confirmParams: {
+          return_url: "http://quiz.adventurefreaksss.com/suggestions",
+        },
+
+        // confirmParams: {
+        //   return_url: "http://localhost:3000/suggestions",
+        // },
+      });
+
+      if (error) {
+        setErrorMessage(error.message);
+        setPaymentStatus("error");
+        setIsLoading(false);
+        return;
+      }
+
+      // Payment succeeded (actually, confirmPayment typically redirects if successful)
+      setPaymentStatus("success");
+      setIsLoading(false);
+    } catch (err) {
+      // Catch any unexpected error
+      setErrorMessage(err.message || "Unexpected error occurred.");
       setPaymentStatus("error");
-      setTimeout(() => {
-        setShowPaymentModal(false);
-      }, 2000);
-      setErrorMessage(error.message);
-    } else {
-      setPaymentStatus("processing");
-      setTimeout(() => {
-        setPaymentStatus("success");
-      }, 2000);
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const handleCheckboxChange = (e) => {
@@ -87,42 +98,67 @@ const CheckoutPage = ({ amount }) => {
 
   if (!clientSecret || !stripe || !elements) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <div className="spinner" role="status"></div>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ backgroundColor: "white", padding: "0.5rem", borderRadius: "0.375rem" }}>
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        backgroundColor: "white",
+        padding: "0.5rem",
+        borderRadius: "0.375rem",
+      }}
+    >
       {clientSecret && (
         <PaymentElement
           onChange={(event) => {
-            setIsPaymentElementComplete(event.complete); 
+            setIsPaymentElementComplete(event.complete);
           }}
         />
       )}
-      {errorMessage && <div style="error-message">{errorMessage}</div>}
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
       {/* Enhanced Checkbox Section */}
       <div className="disclaimer-container">
-          <span className="checkbox-wrapper">
-            <input
-              type="checkbox"
-              id="checkbox"
-              checked={isCheckboxChecked}
-              onChange={handleCheckboxChange}
-              className="checkbox-checkmark"
-            />
-            
-          </span>
-          <span className="disclaimer-text">
-            I understand this report is for informational purposes only and does not guarantee visa eligibility. I
-            acknowledge it is my responsibility to verify visa requirements with official sources.
-          </span>
+        <span className="checkbox-wrapper">
+          <input
+            type="checkbox"
+            id="checkbox"
+            checked={isCheckboxChecked}
+            onChange={handleCheckboxChange}
+            className="checkbox-checkmark"
+          />
+        </span>
+        <span className="disclaimer-text">
+          I understand this report is for informational purposes only and does
+          not guarantee visa eligibility. I acknowledge it is my responsibility
+          to verify visa requirements with official sources.{" "}
+          <a
+            href="https://adventurefreaksss.com/terms-of-use-and-disclaimer/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Read our full terms of use and disclaimer.
+          </a>
+        </span>
       </div>
       <div style={{ marginTop: "1rem" }}>
         <button
-          disabled={!stripe || isLoading || !isPaymentElementComplete || !isCheckboxChecked} 
+          disabled={
+            !stripe ||
+            isLoading ||
+            !isPaymentElementComplete ||
+            !isCheckboxChecked
+          }
           className="pay-now-button"
         >
           {isLoading ? "Processing..." : `Pay $${amount}`}
@@ -150,8 +186,13 @@ const CheckoutPage = ({ amount }) => {
               <div className="payment-error">
                 <div className="error-icon">✗</div>
                 <h3>Payment Failed</h3>
-                <p>There was an error processing your payment. Please try again.</p>
-                <button className="try-again-button" onClick={() => setShowPaymentModal(false)}>
+                <p>
+                  There was an error processing your payment. Please try again.
+                </p>
+                <button
+                  className="try-again-button"
+                  onClick={() => setShowPaymentModal(false)}
+                >
                   Try Again
                 </button>
               </div>

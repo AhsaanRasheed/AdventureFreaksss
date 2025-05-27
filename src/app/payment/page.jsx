@@ -1,5 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
 import "../payment/payment-styles.css";
 import "../globals.css";
 
@@ -18,7 +21,15 @@ if (process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY === undefined) {
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
 
 export default function PaymentScreen() {
-  const amount = 47;
+  const router = useRouter();
+  const amount = 1;
+
+  useEffect(() => {
+    const formattedAnswers = localStorage.getItem("formattedAnswers");
+    if (!formattedAnswers) {
+      router.replace("/"); // Redirect to home if no formattedanswers
+    }
+  }, [router]);
 
   return (
     <div className="payment-container">

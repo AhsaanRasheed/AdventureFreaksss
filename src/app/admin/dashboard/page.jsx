@@ -41,8 +41,6 @@ export default function AdminPage() {
         setPendingQuestionIndex(index);
         setShowDiscardDialog(true);
       } else {
-        console.log("Setting current question index to", index);
-
         setCurrentQuestionIndex(index);
       }
     }
@@ -141,8 +139,6 @@ export default function AdminPage() {
   };
 
   const handleToggleMultiSelect = () => {
-    console.log("Toggle multi-select", !editingQuestion.isMultiSelect);
-
     setEditingQuestion({
       ...editingQuestion,
       isMultiSelect: !editingQuestion.isMultiSelect,
@@ -218,8 +214,6 @@ export default function AdminPage() {
   };
 
   const handleDeleteQuestion = async (id) => {
-    console.log("Deleting question", id);
-
     if (questions.length <= 1) {
       alert("You cannot delete the last question.");
       return;
@@ -238,18 +232,12 @@ export default function AdminPage() {
       }
 
       if (currentQuestionIndex >= updatedQuestions.length) {
-        console.log(
-          "Setting current question index to last question",
-          updatedQuestions.length - 1
-        );
-
         setCurrentQuestionIndex(updateQuestion.length - 1);
       }
       goToQuestion(updatedQuestions.length - 1);
     }
   };
 
-  
   return (
     <AdminQuizEditor
       questions={questions}
