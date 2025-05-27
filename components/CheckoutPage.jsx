@@ -8,8 +8,8 @@ import {
   PaymentElement,
 } from "@stripe/react-stripe-js";
 
-import convertToSubcurrency from "../lib/convertToSubcurrency";
 import "../src/app/globals.css";
+import { createPaymentIntent } from "../lib/service";
 
 const CheckoutPage = ({ amount }) => {
   const stripe = useStripe();
@@ -25,62 +25,18 @@ const CheckoutPage = ({ amount }) => {
   const [isCheckboxChecked, setCheckBoxChecked] = useState(false);
 
   useEffect(() => {
-    fetch("/api/create-payment-intent", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ amount: convertToSubcurrency(amount) }),
-    })
-      .then((res) => res.json())
-      .then((data) => setClientSecret(data.clientSecret));
+    const fetchPaymentIntent = async () => {
+      const clientSecret = await createPaymentIntent(amount);
+      if (clientSecret) {
+        setClientSecret(clientSecret);
+      } else {
+        // Optional: handle UI fallback if needed
+        console.warn("Client secret not received. Possible error.");
+      }
+    };
+
+    fetchPaymentIntent();
   }, [amount]);
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setIsLoading(true);
-  //   setPaymentStatus("processing");
-
-  //   if (!stripe || !elements) {
-  //     setPaymentStatus("error");
-  //     return;
-  //   }
-
-  //   const { error: submitError } = await elements.submit();
-
-  //   if (submitError) {
-  //     setErrorMessage(submitError.message);
-  //     setIsLoading(false);
-  //     return;
-  //   }
-
-  //   setShowPaymentModal(true);
-
-  //   const { error } = await stripe.confirmPayment({
-  //     elements,
-  //     clientSecret,
-  //     confirmParams: {
-  //       // return_url: "https://adventure-freaksss.vercel.app/suggestions",
-  //       return_url: "http://quiz.adventurefreaksss.com/suggestions",
-  //       // return_url: "http://localhost:3000/suggestions",
-  //     },
-  //   });
-
-  //   if (error) {
-  //     setPaymentStatus("error");
-  //     setTimeout(() => {
-  //       setShowPaymentModal(false);
-  //     }, 2000);
-  //     setErrorMessage(error.message);
-  //   } else {
-  //     setPaymentStatus("processing");
-  //     setTimeout(() => {
-  //       setPaymentStatus("success");
-  //     }, 2000);
-  //   }
-
-  //   setIsLoading(false);
-  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
