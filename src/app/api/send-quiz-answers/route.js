@@ -22,19 +22,14 @@ export async function POST(req) {
       },
     });
 
-    const thankYouMailOptions = {
-      from: process.env.ADMIN_EMAIL,
-      to: email,
-      subject: "Thanks for taking the Adventure Freaksss Quiz!",
-      html: `
-        <h2>Hi there 👋</h2>
-        <p>Thank you for completing the Adventure Freaksss relocation quiz!</p>
-        <p>We’ve received your answers and are reviewing them to match you with ideal destinations.</p>
-        <p>In a few minutes, you'll get personalized suggestions based on your preferences. Stay tuned!</p>
-        <br/>
-        <p>— The Adventure Freaksss Team</p>
-      `,
-    };
+   const thankYouMailOptions = {
+  from: process.env.ADMIN_EMAIL,
+  to: email,  // user's email
+  subject: "Thank you for your purchase!",
+  html: `
+    <p>Thank you for purchasing the Ideal Destination Finder. Your report is on the way!</p>
+  `,
+};
 
     await transporter.sendMail(thankYouMailOptions);
 
