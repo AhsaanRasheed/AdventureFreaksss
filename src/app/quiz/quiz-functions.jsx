@@ -34,7 +34,7 @@ export default function QuizFunctions({
   name,
   email,
   emailError,
-  otherInputs
+  otherInputs,
 }) {
   useEffect(() => {
     localStorage.removeItem("cachedRecommendations");
