@@ -35,51 +35,106 @@ const CheckoutPage = ({ amount }) => {
       .then((data) => setClientSecret(data.clientSecret));
   }, [amount]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setPaymentStatus("processing");
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+  //   setPaymentStatus("processing");
 
-    if (!stripe || !elements) {
-      setPaymentStatus("error");
-      return;
-    }
+  //   if (!stripe || !elements) {
+  //     setPaymentStatus("error");
+  //     return;
+  //   }
 
+  //   const { error: submitError } = await elements.submit();
+
+  //   if (submitError) {
+  //     setErrorMessage(submitError.message);
+  //     setIsLoading(false);
+  //     return;
+  //   }
+
+  //   setShowPaymentModal(true);
+
+  //   const { error } = await stripe.confirmPayment({
+  //     elements,
+  //     clientSecret,
+  //     confirmParams: {
+  //       // return_url: "https://adventure-freaksss.vercel.app/suggestions",
+  //       return_url: "http://quiz.adventurefreaksss.com/suggestions",
+  //       // return_url: "http://localhost:3000/suggestions",
+  //     },
+  //   });
+
+  //   if (error) {
+  //     setPaymentStatus("error");
+  //     setTimeout(() => {
+  //       setShowPaymentModal(false);
+  //     }, 2000);
+  //     setErrorMessage(error.message);
+  //   } else {
+  //     setPaymentStatus("processing");
+  //     setTimeout(() => {
+  //       setPaymentStatus("success");
+  //     }, 2000);
+  //   }
+
+  //   setIsLoading(false);
+  // };
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setPaymentStatus("processing");
+  setErrorMessage(null);  // Clear previous error
+
+  if (!stripe || !elements) {
+    setErrorMessage("Stripe has not loaded yet. Please wait and try again.");
+    setIsLoading(false);
+    return;
+  }
+
+  try {
     const { error: submitError } = await elements.submit();
-
     if (submitError) {
       setErrorMessage(submitError.message);
       setIsLoading(false);
       return;
     }
 
-    setShowPaymentModal(true);
+    // Don't show modal until payment is confirmed
+    // setShowPaymentModal(true);
 
     const { error } = await stripe.confirmPayment({
       elements,
       clientSecret,
       confirmParams: {
-        // return_url: "https://adventure-freaksss.vercel.app/suggestions",
         return_url: "http://quiz.adventurefreaksss.com/suggestions",
-        // return_url: "http://localhost:3000/suggestions",
       },
+
+      // confirmParams: {
+      //   return_url: "http://localhost:3000/suggestions",
+      // },
     });
 
     if (error) {
-      setPaymentStatus("error");
-      setTimeout(() => {
-        setShowPaymentModal(false);
-      }, 2000);
       setErrorMessage(error.message);
-    } else {
-      setPaymentStatus("processing");
-      setTimeout(() => {
-        setPaymentStatus("success");
-      }, 2000);
+      setPaymentStatus("error");
+      setIsLoading(false);
+      return;
     }
 
+    // Payment succeeded (actually, confirmPayment typically redirects if successful)
+    setPaymentStatus("success");
     setIsLoading(false);
-  };
+
+  } catch (err) {
+    // Catch any unexpected error
+    setErrorMessage(err.message || "Unexpected error occurred.");
+    setPaymentStatus("error");
+    setIsLoading(false);
+  }
+};
+
 
   const handleCheckboxChange = (e) => {
     const checked = e.target.checked;
@@ -103,7 +158,7 @@ const CheckoutPage = ({ amount }) => {
           }}
         />
       )}
-      {errorMessage && <div style="error-message">{errorMessage}</div>}
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
       {/* Enhanced Checkbox Section */}
       <div className="disclaimer-container">
           <span className="checkbox-wrapper">
