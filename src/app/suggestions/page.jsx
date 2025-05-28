@@ -12,10 +12,6 @@ import {
 } from "../../../lib/service";
 
 export default function ResultsPage() {
-
- 
-
-
   useEffect(() => {
     fetchRecommendations();
   }, []);
@@ -88,13 +84,9 @@ export default function ResultsPage() {
   //   }
   // };
 
-
-  
-  
   const fetchRecommendations = async () => {
     const savedAnswers = localStorage.getItem("formattedAnswers");
     if (!savedAnswers) return;
-
 
     const cachedRecommendations = localStorage.getItem("cachedRecommendations");
     if (cachedRecommendations) {
@@ -102,11 +94,15 @@ export default function ResultsPage() {
     }
 
     try {
-
       const rawResult = await getRecommendations(savedAnswers);
 
+      // const parsed =
+      //   typeof rawResult === "string" ? JSON.parse(rawResult) : rawResult;
+
       const parsed =
-        typeof rawResult === "string" ? JSON.parse(rawResult) : rawResult;
+        typeof rawResult === "string"
+          ? JSON.parse(rawResult.replace(/^```json\s*|\s*```$/g, ""))
+          : rawResult;
 
       const formattedDestinations = {
         title: parsed.title || "",
@@ -144,10 +140,9 @@ export default function ResultsPage() {
     } finally {
     }
   };
-  
-  
+
   const handleSendEmail = async (formattedDestinations) => {
-     const userInfo = localStorage.getItem("formattedAnswers") || "";
+    const userInfo = localStorage.getItem("formattedAnswers") || "";
     const emailMatch = userInfo.match(/Email: ([^\s,]+)/);
     const email = emailMatch[1];
 
