@@ -83,54 +83,25 @@ export default function QuizApp() {
     // Extract other fields
     normalized.currentLocation = get("Where do you live?")[0] || "";
     normalized.ageGroup = get("Choose your age group.")[0] || "";
-    normalized.reasonForMove =
-      get("What is your main reason for considering a move overseas?")[0] || "";
+    normalized.reasonForMove = get("What is your main reason for considering a move overseas?")[0] || "";
     normalized.moveTimeline = get("When would you like to move?")[0] || "";
     normalized.relocatingWith = get("Who will be relocating?")[0] || "";
-    normalized.monthlyBudgetUSD =
-      get("What is your household's monthly budget in USD?")[0] || "";
-    normalized.preferredRegion =
-      get("Which region of the world are you most interested in?")[0] || "";
+    normalized.monthlyBudgetUSD = get("What is your household's monthly budget in USD?")[0] || "";
+    normalized.preferredRegion = get("Which region of the world are you most interested in? (Select all that apply)")|| [];
     normalized.lifestylePreference = get("What’s your preference?")[0] || "";
-    normalized.visaCategory =
-      get("Which visa category best suits your situation?")[0] || "";
-    normalized.preferredTimezones =
-      get(
-        "What timezone do you prefer? (Select all that apply or skip if you have no preference)"
-      ) || [];
-    normalized.languagesSpoken =
-      get("Which languages do you speak? (Select all that apply)") || [];
-    normalized.distanceFromHome =
-      get("How far would you like to be from your home country?")[0] || "";
-    normalized.preferredClimate =
-      get("What is your preferred climate?")[0] || "";
-    normalized.geographicFeatures = get("What features do you prefer?") || [];
-    normalized.healthcarePayment =
-      get(
-        "How would you prefer to pay for healthcare while living abroad?"
-      )[0] || "";
-    normalized.healthcareQuality =
-      get("What level of healthcare quality do you prefer?")[0] || "";
-    normalized.safetyLevel =
-      get(
-        "What level of safety are you seeking? (Rankings are based on stability, war, violent crime, and petty crime. For reference, the U.S. is in the top 50 percentile.)"
-      )[0] || "";
-    normalized.infrastructureQuality =
-      get(
-        "What level of infrastructure quality are you seeking? (This includes overall infrastructure, roads, public transportation, and electrical systems. For reference, the U.S. ranks in the top 10%.)"
-      )[0] || "";
-    normalized.legalPreferences =
-      get(
-        "What legal rights or practices are important to you in your new country? (Select all that apply)"
-      ) || [];
-    normalized.religiousCommunities =
-      get(
-        "What religious communities would you prefer to be present in your new country? "
-      ) || [];
-    normalized.countriesConsidered =
-      get(
-        "Which countries are you considering? Please list them in the box below."
-      ) || [];
+    normalized.visaCategory = get("Which visa category best suits your situation?")[0] || "";
+    normalized.preferredTimezones = get("What timezone do you prefer? (Select all that apply or skip if you have no preference)") || [];
+    normalized.languagesSpoken = get("Which languages do you speak? (Select all that apply)") || [];
+    normalized.distanceFromHome = get("How far would you like to be from your home country?")[0] || "";
+    normalized.preferredClimate = get("What is your preferred climate? (Select all that apply)") || [];
+    normalized.geographicFeatures = get("What features do you prefer? (Select all that apply)") || [];
+    normalized.healthcarePayment = get("How would you prefer to pay for healthcare while living abroad?")[0] || "";
+    normalized.healthcareQuality = get("What level of healthcare quality do you prefer?")[0] || "";
+    normalized.safetyLevel = get("What level of safety are you seeking? (Rankings are based on stability, war, violent crime, and petty crime. For reference, the U.S. is in the top 50 percentile.)")[0] || "";
+    normalized.infrastructureQuality = get("What level of infrastructure quality are you seeking? (This includes overall infrastructure, roads, public transportation, and electrical systems. For reference, the U.S. ranks in the top 10%.)")[0] || "";
+    normalized.legalPreferences = get("What legal rights or practices are important to you in your new country? (Select all that apply)") || [];
+    normalized.religiousCommunities = get("What religious communities would you prefer to be present in your new country? ") [0] || "";
+    normalized.countriesConsidered = get("Which countries are you considering? Please list them in the box below.") || [];
 
     return normalized;
   };
