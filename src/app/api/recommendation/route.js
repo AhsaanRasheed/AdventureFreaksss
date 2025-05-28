@@ -4,6 +4,8 @@ import { NextResponse } from "next/server";
 export async function POST(req) {
   try {
     const { questions } = await req.json();
+    console.log("Received questions:", questions); // Debugging line
+    
     console.log("Received questions:", JSON.stringify(questions, null, 2));
     
 
@@ -126,6 +128,6 @@ JSON format:
 Use the following quiz data to guide your recommendations. Clean and normalize the input before processing.
 
 RAW DATA:
-${JSON.stringify(questions, null, 2)}
+${questions}
 `;
 }
