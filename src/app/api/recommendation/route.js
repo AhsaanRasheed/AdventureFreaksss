@@ -6,7 +6,7 @@ export async function POST(req) {
     const { questions } = await req.json();
     console.log("Received questions:", questions); // Debugging line
     
-    console.log("Received questions:", JSON.stringify(questions, null, 2));
+    // console.log("Received questions:", JSON.stringify(questions, null, 2));
     
 
     if (!questions) {
@@ -22,7 +22,7 @@ export async function POST(req) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "o4-mini", // or 'gpt-3.5-turbo', 'o4-mini' if available
+        model: "gpt-4o", // or 'gpt-3.5-turbo', 'o4-mini' if available
         messages: [
           {
             role: "system",
