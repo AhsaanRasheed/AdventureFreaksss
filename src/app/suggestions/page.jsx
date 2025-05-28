@@ -8,81 +8,12 @@ import logo from "../assets/logo.png";
 import {
   getRecommendations,
   sendAnswersToEmail,
-  sendThankYouEmail,
 } from "../../../lib/service";
 
 export default function ResultsPage() {
   useEffect(() => {
     fetchRecommendations();
   }, []);
-
-  // const fetchRecommendations = async () => {
-  //   const savedAnswersRaw = localStorage.getItem("formattedAnswers");
-  //   if (!savedAnswersRaw) return;
-
-  //   const savedAnswers = JSON.parse(savedAnswersRaw);
-
-  //   const cachedRecommendations = localStorage.getItem("cachedRecommendations");
-  //   if (cachedRecommendations) {
-  //     return;
-  //   }
-
-  //   try {
-  //     await sendThankYouEmail(savedAnswers.email);
-
-  //     const rawResult = await getRecommendations(savedAnswers);
-
-  //     const parsed =
-  //       typeof rawResult === "string" ? JSON.parse(rawResult) : rawResult;
-
-  //     const formattedDestinations = {
-  //       title: parsed.title || "",
-  //       subtitle: parsed.subtitle || "",
-  //       introduction: parsed.introduction || "",
-  //       topPicks: Object.entries(parsed.topPicks || {}).map(
-  //         ([key, country]) => ({
-  //           id: key,
-  //           name: country.name,
-  //           subheading: country.subheading,
-  //           description: country.description,
-  //           importantPoints: country.importantPoints,
-  //           whyFits: country.whyFits,
-  //         })
-  //       ),
-  //       finalThoughts: {
-  //         description: parsed.finalThoughts?.description || "",
-  //         comparisonTable: parsed.finalThoughts?.comparisonTable || {},
-  //         conclusion: parsed.finalThoughts?.conclusion || "",
-  //       },
-  //       footer: {
-  //         regards: parsed.footer?.regards || "",
-  //         founder: parsed.footer?.founder || "",
-  //         signature: parsed.footer?.signature || "",
-  //       },
-  //     };
-
-  //     localStorage.setItem(
-  //       "cachedRecommendations",
-  //       JSON.stringify(formattedDestinations)
-  //     );
-  //     await handleSendEmail(formattedDestinations);
-  //   } catch (err) {
-  //     console.error("Failed to fetch or parse recommendations:", err);
-  //   } finally {
-  //   }
-  // };
-
-  // const handleSendEmail = async (formattedDestinations) => {
-  //   const userInfoString = localStorage.getItem("formattedAnswers") || "";
-  //   const userInfo = JSON.parse(userInfoString);
-  //   const email = userInfo.email;
-
-  //   try {
-  //     await sendAnswersToEmail(email, formattedDestinations);
-  //   } catch (err) {
-  //     console.log("Failed to send email:", err);
-  //   }
-  // };
 
   const fetchRecommendations = async () => {
     const savedAnswers = localStorage.getItem("formattedAnswers");
@@ -95,10 +26,6 @@ export default function ResultsPage() {
 
     try {
       const rawResult = await getRecommendations(savedAnswers);
-
-      // const parsed =
-      //   typeof rawResult === "string" ? JSON.parse(rawResult) : rawResult;
-
       const parsed =
         typeof rawResult === "string"
           ? JSON.parse(rawResult.replace(/^```json\s*|\s*```$/g, ""))
