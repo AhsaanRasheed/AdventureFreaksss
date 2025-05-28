@@ -5,7 +5,11 @@ import "../suggestions/styles.css";
 import "../globals.css";
 import Image from "next/image";
 import logo from "../assets/logo.png";
-import { getRecommendations, sendAnswersToEmail } from "../../../lib/service";
+import {
+  getRecommendations,
+  sendAnswersToEmail,
+  sendThankYouEmail,
+} from "../../../lib/service";
 
 export default function ResultsPage() {
   useEffect(() => {
@@ -20,12 +24,12 @@ export default function ResultsPage() {
 
     const cachedRecommendations = localStorage.getItem("cachedRecommendations");
     if (cachedRecommendations) {
-      // await handleSendEmail(cachedRecommendations);
-
       return;
     }
 
     try {
+      await sendThankYouEmail(savedAnswers.email);
+
       const rawResult = await getRecommendations(savedAnswers);
 
       const parsed =
