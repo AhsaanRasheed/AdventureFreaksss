@@ -151,14 +151,7 @@ export default function ResultsPage() {
     const emailMatch = userInfo.match(/Email: ([^\s,]+)/);
     const email = emailMatch[1];
 
-    // console.log("Email to send:", email);
-
-    // return;
-    
-      
-
     try {
-      await sendThankYouEmail(email);
       await sendAnswersToEmail(email, formattedDestinations);
     } catch (err) {
       console.log("Failed to send email:", err);
