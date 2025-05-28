@@ -4,17 +4,10 @@ import { NextResponse } from "next/server";
 export async function POST(req) {
   try {
     const { questions } = await req.json();
-    console.log("Received questions:", questions); // Debugging line
-    
-    // console.log("Received questions:", JSON.stringify(questions, null, 2));
-    
-
     if (!questions) {
       return NextResponse.json({ error: "Missing questions" }, { status: 400 });
     }
-
     const prompt = generatePrompt(questions);
-
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {

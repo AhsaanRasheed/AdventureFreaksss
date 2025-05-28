@@ -352,19 +352,7 @@ export default function QuizApp() {
 
     if (isCurrentQuestionAnswered()) {
       const formattedAnswers = formatAnswersForAI();
-
-      // const formattedAnswers = normalizeAnswers(userAnswers);
-
-      // localStorage.setItem(
-      //   "formattedAnswers",
-      //   JSON.stringify(formattedAnswers)
-      // );
-
       localStorage.setItem("formattedAnswers", formattedAnswers);
-      // localStorage.setItem("quizAnswers", JSON.stringify(userAnswers));
-      // localStorage.setItem("quizOtherInputs", JSON.stringify(otherInputs));
-      // localStorage.removeItem("cachedRecommendations");
-      
       router.push("/payment");
     } else {
       setHelperMessage("Please answer this question before proceeding");
