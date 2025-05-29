@@ -339,6 +339,8 @@ export default function QuizApp() {
   };
 
   const handleFinish = () => {
+    localStorage.removeItem("cachedRecommendations");
+    localStorage.removeItem("formattedAnswers");
     if (
       isOtherSelected() &&
       (!otherInputs[currentQuestion.text] ||
