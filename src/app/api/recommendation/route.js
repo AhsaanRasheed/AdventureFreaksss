@@ -103,9 +103,9 @@ JSON format:
     "description": "[Summary paragraph of findings]",
     "comparisonTable": {
       "factors": ["Visa Availability", "Cost of Living", "Healthcare", "Community", "Climate"],
-      "country1": ["✅", "✅", "✅", "✅", "✅"],
-      "country2": ["✅", "✅", "❌", "✅", "✅"],
-      "country3": ["✅", "❌", "✅", "✅", "✅"]
+      "country1": [],
+      "country2": [],
+      "country3": []
     },
     "conclusion": "[Warm, clear summary highlighting which country is the best overall match for the user based on their goals, why it fits best, and any secondary recommendations — written like personalized guidance and encouragement for their journey.]"
   },
