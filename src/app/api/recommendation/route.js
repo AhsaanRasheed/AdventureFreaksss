@@ -71,6 +71,11 @@ Your task is to generate a **Personalized Relocation Report** for a user based o
 8. ✅ If religious preferences are listed, factor them into community fit.
 9. ✅ Always stay within **budget + visa + lifestyle + timeline + safety** constraints.
 10. ❌ Never recommend a country just because it’s popular — always justify it based on the user's goals.
+11. ❌ Never suggest countries where:  
+   - Cost of living exceeds the user’s budget (unless explicitly allowed).  
+   - The user is unlikely to qualify for their selected visa type.  
+   - Healthcare quality is below the user’s stated preference (e.g., avoid countries outside the top 10%/25% if required).
+12. ❌ If no country fits all criteria, return fewer than 3 options and explain why in 'finalThoughts'.
 
 ---
 
