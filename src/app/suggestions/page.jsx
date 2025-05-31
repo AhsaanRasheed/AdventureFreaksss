@@ -1,5 +1,10 @@
+import React, { Suspense } from "react";
 import ResultsClient from "./ResultsClient";
 
 export default function Page() {
-  return <ResultsClient />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResultsClient />
+    </Suspense>
+  );
 }
