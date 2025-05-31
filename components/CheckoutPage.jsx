@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-
 import "../src/app/payment/payment-styles.css";
 
 import {
@@ -9,7 +8,7 @@ import {
 } from "@stripe/react-stripe-js";
 
 import "../src/app/globals.css";
-import { createPaymentIntent } from "../lib/service";
+import { createPaymentIntent, sendEmail } from "../lib/service";
 
 const CheckoutPage = ({ amount }) => {
   const stripe = useStripe();
@@ -64,13 +63,13 @@ const CheckoutPage = ({ amount }) => {
       const { error } = await stripe.confirmPayment({
         elements,
         clientSecret,
-        confirmParams: {
-          return_url: "http://quiz.adventurefreaksss.com/suggestions",
-        },
-
         // confirmParams: {
-        //   return_url: "http://localhost:3000/suggestions",
+        //   return_url: "http://quiz.adventurefreaksss.com/suggestions?status=success",
         // },
+
+        confirmParams: {
+          return_url: "http://localhost:3000/suggestions",
+        },
       });
 
       if (error) {
@@ -80,6 +79,7 @@ const CheckoutPage = ({ amount }) => {
         return;
       }
 
+      
       // Payment succeeded (actually, confirmPayment typically redirects if successful)
       setPaymentStatus("success");
       setIsLoading(false);

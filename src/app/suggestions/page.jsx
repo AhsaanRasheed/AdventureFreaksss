@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import "../suggestions/styles.css";
 import "../globals.css";
 import Image from "next/image";
@@ -8,13 +9,41 @@ import logo from "../assets/logo.png";
 import {
   getRecommendations,
   sendAnswersToEmail,
-  sendEmail
+  verifyStripeSession,
+  sendEmail,
 } from "../../../lib/service";
 
 export default function ResultsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   useEffect(() => {
+    const payment_intent = searchParams.get("payment_intent");
+
+    if (!payment_intent) {
+      router.push("/");
+      return;
+    }
+    const verifyAndSendEmail = async () => {
+      const result = await verifyStripeSession(payment_intent);
+      if (!result || !result.success) {
+        console.log(result);
+        
+        router.push("/");
+        return;
+      }
+
+      const userInfo = localStorage.getItem("formattedAnswers") || "";
+      try {
+        await sendEmail(userInfo);
+      } catch (err) {
+        console.error("Failed to send email:", err);
+      }
+    };
+
+    verifyAndSendEmail();
     // fetchRecommendations();
-    handleSendEmail();
+    // handleSendEmail();
   }, []);
 
   // const fetchRecommendations = async () => {
@@ -82,17 +111,15 @@ export default function ResultsPage() {
   //   }
   // };
 
+  // const handleSendEmail = async () => {
+  //   const userInfo = localStorage.getItem("formattedAnswers") || "";
 
-  const handleSendEmail = async () => {
-    const userInfo = localStorage.getItem("formattedAnswers") || "";
-    
-
-    try {
-      await sendEmail(userInfo);
-    } catch (err) {
-      console.log("Failed to send email:", err);
-    }
-  };
+  //   try {
+  //     await sendEmail(userInfo);
+  //   } catch (err) {
+  //     console.log("Failed to send email:", err);
+  //   }
+  // };
 
   return (
     <div className="results-container">
