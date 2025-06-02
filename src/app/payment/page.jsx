@@ -22,7 +22,7 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
 
 export default function PaymentScreen() {
   const router = useRouter();
-  const amount = 1;
+  const amount = 47;
 
   useEffect(() => {
     const formattedAnswers = localStorage.getItem("formattedAnswers");

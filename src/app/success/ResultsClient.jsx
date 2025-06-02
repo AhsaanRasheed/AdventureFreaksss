@@ -143,7 +143,7 @@ export default function ResultsClient() {
           <p className="report-subtitle">
             We’ve received your responses and payment, and your personalized
             report is now being carefully prepared based on the information you
-            shared. In approximately one hour, you’ll receive your custom report
+            shared. In approximately 24 hours, you’ll receive your custom report
             via email, featuring our top recommended destination—plus two
             additional locations that closely match your preferences. We’re
             excited to help you take the next step toward a better life abroad.
