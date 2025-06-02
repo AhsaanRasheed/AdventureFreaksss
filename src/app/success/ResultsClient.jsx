@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import "../suggestions/styles.css";
+import "./styles.css";
 import "../globals.css";
 import Image from "next/image";
 import logo from "../assets/logo.png";
