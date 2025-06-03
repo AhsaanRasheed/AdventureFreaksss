@@ -16,35 +16,50 @@ import {
 export default function ResultsClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
+  
+  
   useEffect(() => {
-    const payment_intent = searchParams.get("payment_intent");
+  const userInfo = localStorage.getItem("formattedAnswers") || "";
 
-    if (!payment_intent) {
+  const nameMatch = userInfo.match(/Name:\s*(.+?),?\s*Email:/i);
+  const emailMatch = userInfo.match(/Email:\s*([^\s,]+)/i);
+
+  const name = nameMatch ? nameMatch[1].trim() : null;
+  const email = emailMatch ? emailMatch[1].trim() : null;
+
+  const payment_intent = searchParams.get("payment_intent");
+
+  if (!payment_intent) {
+    router.push("/");
+    return;
+  }
+
+  const alreadyVerified = localStorage.getItem("paymentVerified");
+
+  if (alreadyVerified === "true") {
+    console.log("Payment already verified.");
+    return;
+  }
+
+  const verifyAndSendEmail = async () => {
+    const result = await verifyStripeSession(payment_intent, name, email);
+
+    if (!result || !result.success) {
+      console.log("Payment verification failed:", result);
       router.push("/");
       return;
     }
-    const verifyAndSendEmail = async () => {
-      const result = await verifyStripeSession(payment_intent);
-      if (!result || !result.success) {
-        console.log(result);
-        
-        router.push("/");
-        return;
-      }
 
-      const userInfo = localStorage.getItem("formattedAnswers") || "";
-      try {
-        await sendEmail(userInfo);
-      } catch (err) {
-        console.error("Failed to send email:", err);
-      }
-    };
+    try {
+      await sendEmail(userInfo);
+      localStorage.setItem("paymentVerified", "true"); // ✅ set flag after success
+    } catch (err) {
+      console.error("Failed to send email:", err);
+    }
+  };
 
-    verifyAndSendEmail();
-    // fetchRecommendations();
-    // handleSendEmail();
-  }, []);
+  verifyAndSendEmail();
+}, []);
 
   // const fetchRecommendations = async () => {
   //   const savedAnswers = localStorage.getItem("formattedAnswers");
