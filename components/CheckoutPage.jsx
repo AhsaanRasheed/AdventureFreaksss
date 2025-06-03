@@ -23,11 +23,20 @@ const CheckoutPage = ({ amount }) => {
     useState(false);
   const [isCheckboxChecked, setCheckBoxChecked] = useState(false);
 
+  
+  const [promoCode, setPromoCode] = useState("");
+  const [discountRate, setDiscountRate] = useState(0);
+  const [finalAmount, setFinalAmount] = useState(amount);
+  
+  
+
   useEffect(() => {
     const fetchPaymentIntent = async () => {
-      const clientSecret = await createPaymentIntent(amount);
-      if (clientSecret) {
-        setClientSecret(clientSecret);
+      const res = await createPaymentIntent(amount, promoCode);
+      if (res) {
+        setClientSecret(res.clientSecret);
+        setDiscountRate(res.discountRate);
+      setFinalAmount(res.finalAmount);
       } else {
         // Optional: handle UI fallback if needed
         console.warn("Client secret not received. Possible error.");
@@ -35,7 +44,7 @@ const CheckoutPage = ({ amount }) => {
     };
 
     fetchPaymentIntent();
-  }, [amount]);
+  }, [amount, promoCode]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -119,6 +128,22 @@ const CheckoutPage = ({ amount }) => {
         borderRadius: "0.375rem",
       }}
     >
+
+      <input
+        type="text"
+        placeholder="Enter promo code"
+        value={promoCode}
+        onChange={(e) => setPromoCode(e.target.value)}
+        style={{ width: "100%", padding: "0.5rem", marginBottom: "1rem" }}
+      />
+
+      {discountRate > 0 && (
+        <p style={{ color: "green" }}>
+          Coupon applied! You saved {Math.round(discountRate * 100)}%
+        </p>
+      )}
+
+
       {clientSecret && (
         <PaymentElement
           onChange={(event) => {
@@ -161,7 +186,8 @@ const CheckoutPage = ({ amount }) => {
           }
           className="pay-now-button"
         >
-          {isLoading ? "Processing..." : `Pay $${amount}`}
+          {isLoading ? "Processing..." : `Pay $${(finalAmount / 100).toFixed(2)}`}
+          {/* {isLoading ? "Processing..." : `Pay $${amount}`} */}
         </button>
       </div>
 
