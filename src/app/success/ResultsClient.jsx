@@ -18,123 +18,118 @@ export default function ResultsClient() {
   const searchParams = useSearchParams();
   
   
-  useEffect(() => {
-  const userInfo = localStorage.getItem("formattedAnswers") || "";
+//   useEffect(() => {
+//   const userInfo = localStorage.getItem("formattedAnswers") || "";
 
-  const nameMatch = userInfo.match(/Name:\s*(.+?),?\s*Email:/i);
-  const emailMatch = userInfo.match(/Email:\s*([^\s,]+)/i);
+//   const nameMatch = userInfo.match(/Name:\s*(.+?),?\s*Email:/i);
+//   const emailMatch = userInfo.match(/Email:\s*([^\s,]+)/i);
 
-  const name = nameMatch ? nameMatch[1].trim() : null;
-  const email = emailMatch ? emailMatch[1].trim() : null;
+//   const name = nameMatch ? nameMatch[1].trim() : null;
+//   const email = emailMatch ? emailMatch[1].trim() : null;
 
-  const payment_intent = searchParams.get("payment_intent");
+//   const payment_intent = searchParams.get("payment_intent");
 
-  if (!payment_intent) {
-    router.push("/");
-    return;
-  }
+//   if (!payment_intent) {
+//     router.push("/");
+//     return;
+//   }
 
-  const alreadyVerified = localStorage.getItem("paymentVerified");
+//   const alreadyVerified = localStorage.getItem("paymentVerified");
 
-  if (alreadyVerified === "true") {
-    console.log("Payment already verified.");
-    return;
-  }
+//   if (alreadyVerified === "true") {
+//     console.log("Payment already verified.");
+//     return;
+//   }
 
-  const verifyAndSendEmail = async () => {
-    const result = await verifyStripeSession(payment_intent, name, email);
+//   const verifyAndSendEmail = async () => {
+//     const result = await verifyStripeSession(payment_intent, name, email);
 
-    if (!result || !result.success) {
-      console.log("Payment verification failed:", result);
-      router.push("/");
+//     if (!result || !result.success) {
+//       console.log("Payment verification failed:", result);
+//       router.push("/");
+//       return;
+//     }
+
+//     try {
+//       await sendEmail(userInfo);
+//       localStorage.setItem("paymentVerified", "true"); // ✅ set flag after success
+//     } catch (err) {
+//       console.error("Failed to send email:", err);
+//     }
+//   };
+
+//   verifyAndSendEmail();
+// }, []);
+
+
+useEffect(() => {
+ fetchRecommendations(); 
+}, []);
+
+  const fetchRecommendations = async () => {
+    const savedAnswers = localStorage.getItem("formattedAnswers");
+    if (!savedAnswers) return;
+
+    const cachedRecommendations = localStorage.getItem("cachedRecommendations");
+    if (cachedRecommendations) {
       return;
     }
 
     try {
-      await sendEmail(userInfo);
-      localStorage.setItem("paymentVerified", "true"); // ✅ set flag after success
+      const rawResult = await getRecommendations(savedAnswers);
+      const parsed =
+        typeof rawResult === "string"
+          ? JSON.parse(rawResult.replace(/^```json\s*|\s*```$/g, ""))
+          : rawResult;
+
+      const formattedDestinations = {
+        title: parsed.title || "",
+        subtitle: parsed.subtitle || "",
+        introduction: parsed.introduction || "",
+        topPicks: Object.entries(parsed.topPicks || {}).map(
+          ([key, country]) => ({
+            id: key,
+            name: country.name,
+            subheading: country.subheading,
+            description: country.description,
+            importantPoints: country.importantPoints,
+            whyFits: country.whyFits,
+          })
+        ),
+        finalThoughts: {
+          description: parsed.finalThoughts?.description || "",
+          comparisonTable: parsed.finalThoughts?.comparisonTable || {},
+          conclusion: parsed.finalThoughts?.conclusion || "",
+        },
+        footer: {
+          regards: parsed.footer?.regards || "",
+          founder: parsed.footer?.founder || "",
+          signature: parsed.footer?.signature || "",
+        },
+      };
+
+      localStorage.setItem(
+        "cachedRecommendations",
+        JSON.stringify(formattedDestinations)
+      );
+      await handleSendEmail(formattedDestinations);
     } catch (err) {
-      console.error("Failed to send email:", err);
+      console.error("Failed to fetch or parse recommendations:", err);
+    } finally {
     }
   };
 
-  verifyAndSendEmail();
-}, []);
+  const handleSendEmail = async (formattedDestinations) => {
+    const userInfo = localStorage.getItem("formattedAnswers") || "";
+    const emailMatch = userInfo.match(/Email: ([^\s,]+)/);
+    const email = emailMatch[1];
 
-  // const fetchRecommendations = async () => {
-  //   const savedAnswers = localStorage.getItem("formattedAnswers");
-  //   if (!savedAnswers) return;
-
-  //   const cachedRecommendations = localStorage.getItem("cachedRecommendations");
-  //   if (cachedRecommendations) {
-  //     return;
-  //   }
-
-  //   try {
-  //     const rawResult = await getRecommendations(savedAnswers);
-  //     const parsed =
-  //       typeof rawResult === "string"
-  //         ? JSON.parse(rawResult.replace(/^```json\s*|\s*```$/g, ""))
-  //         : rawResult;
-
-  //     const formattedDestinations = {
-  //       title: parsed.title || "",
-  //       subtitle: parsed.subtitle || "",
-  //       introduction: parsed.introduction || "",
-  //       topPicks: Object.entries(parsed.topPicks || {}).map(
-  //         ([key, country]) => ({
-  //           id: key,
-  //           name: country.name,
-  //           subheading: country.subheading,
-  //           description: country.description,
-  //           importantPoints: country.importantPoints,
-  //           whyFits: country.whyFits,
-  //         })
-  //       ),
-  //       finalThoughts: {
-  //         description: parsed.finalThoughts?.description || "",
-  //         comparisonTable: parsed.finalThoughts?.comparisonTable || {},
-  //         conclusion: parsed.finalThoughts?.conclusion || "",
-  //       },
-  //       footer: {
-  //         regards: parsed.footer?.regards || "",
-  //         founder: parsed.footer?.founder || "",
-  //         signature: parsed.footer?.signature || "",
-  //       },
-  //     };
-
-  //     localStorage.setItem(
-  //       "cachedRecommendations",
-  //       JSON.stringify(formattedDestinations)
-  //     );
-  //     await handleSendEmail(formattedDestinations);
-  //   } catch (err) {
-  //     console.error("Failed to fetch or parse recommendations:", err);
-  //   } finally {
-  //   }
-  // };
-
-  // const handleSendEmail = async (formattedDestinations) => {
-  //   const userInfo = localStorage.getItem("formattedAnswers") || "";
-  //   const emailMatch = userInfo.match(/Email: ([^\s,]+)/);
-  //   const email = emailMatch[1];
-
-  //   try {
-  //     await sendAnswersToEmail(email, formattedDestinations);
-  //   } catch (err) {
-  //     console.log("Failed to send email:", err);
-  //   }
-  // };
-
-  // const handleSendEmail = async () => {
-  //   const userInfo = localStorage.getItem("formattedAnswers") || "";
-
-  //   try {
-  //     await sendEmail(userInfo);
-  //   } catch (err) {
-  //     console.log("Failed to send email:", err);
-  //   }
-  // };
+    try {
+      await sendAnswersToEmail(email, formattedDestinations);
+    } catch (err) {
+      console.log("Failed to send email:", err);
+    }
+  };
 
   return (
     <div className="results-container">
