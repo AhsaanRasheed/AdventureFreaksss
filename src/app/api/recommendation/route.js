@@ -1,56 +1,56 @@
-// // app/api/recommendation/route.js
-// import { NextResponse } from "next/server";
+// app/api/recommendation/route.js
+import { NextResponse } from "next/server";
+import generatePrompt from "./generatePrompt";
+export async function POST(req) {
+  try {
+    const { questions } = await req.json();
+    if (!questions) {
+      return NextResponse.json({ error: "Missing questions" }, { status: 400 });
+    }
+    const prompt = generatePrompt(questions);
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-4o", // or 'gpt-3.5-turbo', 'o4-mini' if available
+        messages: [
+          {
+            role: "system",
+            content: "You are a relocation advisor AI. Given structured data and user input, you create detailed, personalized, and factual relocation reports.",
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        temperature: 1,
+      }),
+    });
 
-// export async function POST(req) {
-//   try {
-//     const { questions } = await req.json();
-//     if (!questions) {
-//       return NextResponse.json({ error: "Missing questions" }, { status: 400 });
-//     }
-//     const prompt = generatePrompt(questions);
-//     const response = await fetch("https://api.openai.com/v1/chat/completions", {
-//       method: "POST",
-//       headers: {
-//         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify({
-//         model: "gpt-4o", // or 'gpt-3.5-turbo', 'o4-mini' if available
-//         messages: [
-//           {
-//             role: "system",
-//             content: "You are a helpful travel and relocation advisor.",
-//           },
-//           {
-//             role: "user",
-//             content: prompt,
-//           },
-//         ],
-//         temperature: 1,
-//       }),
-//     });
+    const data = await response.json();
 
-//     const data = await response.json();
+    let reply = data.choices?.[0]?.message?.content || "[]";
+    let result;
 
-//     let reply = data.choices?.[0]?.message?.content || "[]";
-//     let result;
+    try {
+      result = reply;
+    } catch (e) {
+      console.error("Failed to parse JSON reply from OpenAI:", reply);
+      result = [];
+    }
 
-//     try {
-//       result = reply;
-//     } catch (e) {
-//       console.error("Failed to parse JSON reply from OpenAI:", reply);
-//       result = [];
-//     }
-
-//     return NextResponse.json({ result });
-//   } catch (error) {
-//     console.error("Recommendation API Error:", error);
-//     return NextResponse.json(
-//       { error: "Internal Server Error" },
-//       { status: 500 }
-//     );
-//   }
-// }
+    return NextResponse.json({ result });
+  } catch (error) {
+    console.error("Recommendation API Error:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
 
 // function generatePrompt(questions) {
 //   return `
@@ -60,7 +60,39 @@
 
 // ---
 
-// 🔒 Apply these strict rules:
+// 🔧 Your **first task** is to parse and convert the quiz responses (formatted in free text) into a normalized JavaScript-like object with fields like:
+
+// \`\`\`js
+// {
+//   name: "",
+//   email: "",
+//   countryOfResidence: "",
+//   ageGroup: "",
+//   reasonForMoving: "",
+//   moveTimeline: "",
+//   whoIsRelocating: "",
+//   monthlyBudgetUSD: "",
+//   preferredRegions: [],
+//   lifestylePreference: "",
+//   visaCategory: "",
+//   timezonePreference: [],
+//   languagesSpoken: [],
+//   distanceFromHome: "",
+//   climatePreference: [],
+//   locationFeatures: [],
+//   healthcareType: "",
+//   healthcareQuality: "",
+//   safetyLevel: "",
+//   infrastructureLevel: "",
+//   importantLegalRights: [],
+//   religiousPreferences: [],
+//   countriesBeingConsidered: []
+// }
+// \`\`\`
+
+// ---
+
+// 🔒 Then follow these strict rules:
 // 1. ✅ Do **not** suggest countries where the total monthly cost of living typically **exceeds the user's selected budget** unless explicitly mentioned by the user.
 // 2. ✅ Only suggest countries where the user is **likely eligible** for the visa category selected (retirement, digital nomad, student, etc.).
 // 3. ✅ If the user prefers healthcare in the **top 10% or 25%**, avoid countries with poor healthcare systems.
@@ -79,9 +111,7 @@
 
 // ---
 
-// 🧠 Steps:
-// - First, parse and normalize the quiz answers into clear structured fields (like 'name', 'budget', 'ageGroup', 'visaType', 'regionPreferences', etc.)
-// - Then, generate the final output ONLY in the exact JSON structure below. Do not include Markdown or text outside the JSON.
+// 🧠 After parsing, generate the final output ONLY in the exact JSON structure below. Do not include Markdown or text outside the JSON.
 
 // ---
 

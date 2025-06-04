@@ -72,13 +72,13 @@ const CheckoutPage = ({ amount }) => {
       const { error } = await stripe.confirmPayment({
         elements,
         clientSecret,
-        confirmParams: {
-          return_url: "http://quiz.adventurefreaksss.com/success?status=success",
-        },
-
         // confirmParams: {
-        //   return_url: "http://localhost:3000/suggestions",
+        //   return_url: "http://quiz.adventurefreaksss.com/success?status=success",
         // },
+
+        confirmParams: {
+          return_url: "http://localhost:3000/success?status=success",
+        },
       });
 
       if (error) {
