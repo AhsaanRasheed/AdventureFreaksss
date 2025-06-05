@@ -76,47 +76,61 @@ useEffect(() => {
     }
 
     try {
-      const rawResult = await getRecommendations(savedAnswers);
-      const parsed =
-        typeof rawResult === "string"
-          ? JSON.parse(rawResult.replace(/^```json\s*|\s*```$/g, ""))
-          : rawResult;
+  const rawResult = await getRecommendations(savedAnswers);
 
-      const formattedDestinations = {
-        title: parsed.title || "",
-        subtitle: parsed.subtitle || "",
-        introduction: parsed.introduction || "",
-        topPicks: Object.entries(parsed.topPicks || {}).map(
-          ([key, country]) => ({
-            id: key,
-            name: country.name,
-            subheading: country.subheading,
-            description: country.description,
-            importantPoints: country.importantPoints,
-            whyFits: country.whyFits,
-          })
-        ),
-        finalThoughts: {
-          description: parsed.finalThoughts?.description || "",
-          comparisonTable: parsed.finalThoughts?.comparisonTable || {},
-          conclusion: parsed.finalThoughts?.conclusion || "",
-        },
-        footer: {
-          regards: parsed.footer?.regards || "",
-          founder: parsed.footer?.founder || "",
-          signature: parsed.footer?.signature || "",
-        },
-      };
+  let parsed;
 
-      localStorage.setItem(
-        "cachedRecommendations",
-        JSON.stringify(formattedDestinations)
-      );
-      await handleSendEmail(formattedDestinations);
-    } catch (err) {
-      console.error("Failed to fetch or parse recommendations:", err);
-    } finally {
+  if (typeof rawResult === "string") {
+    // Match all ```json ... ``` blocks
+    const allJsonBlocks = [...rawResult.matchAll(/```json\s*([\s\S]*?)\s*```/g)];
+
+    if (allJsonBlocks.length < 2) {
+      throw new Error("Expected at least two JSON blocks in the response.");
     }
+
+    const relocationReportJson = allJsonBlocks[1][1]; // second block (index 1)
+    parsed = JSON.parse(relocationReportJson);
+  } else {
+    parsed = rawResult;
+  }
+
+  const formattedDestinations = {
+    title: parsed.title || "",
+    subtitle: parsed.subtitle || "",
+    introduction: parsed.introduction || "",
+    topPicks: Object.entries(parsed.topPicks || {}).map(
+      ([key, country]) => ({
+        id: key,
+        name: country.name,
+        subheading: country.subheading,
+        description: country.description,
+        importantPoints: country.importantPoints,
+        whyFits: country.whyFits,
+      })
+    ),
+    finalThoughts: {
+      description: parsed.finalThoughts?.description || "",
+      comparisonTable: parsed.finalThoughts?.comparisonTable || {},
+      conclusion: parsed.finalThoughts?.conclusion || "",
+    },
+    footer: {
+      regards: parsed.footer?.regards || "",
+      founder: parsed.footer?.founder || "",
+      signature: parsed.footer?.signature || "",
+    },
+  };
+
+  localStorage.setItem(
+    "cachedRecommendations",
+    JSON.stringify(formattedDestinations)
+  );
+
+  await handleSendEmail(formattedDestinations);
+
+} catch (err) {
+  console.error("Failed to fetch or parse recommendations:", err);
+}
+
   };
 
   const handleSendEmail = async (formattedDestinations) => {
