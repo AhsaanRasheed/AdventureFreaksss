@@ -4,7 +4,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // Example static coupons. In production, use a DB.
 const VALID_COUPONS = {
-  Adv15: 0.15, 
+  ADV15: 0.15, 
 //   SAVE5: 0.05,  // 5% off
 };
 
