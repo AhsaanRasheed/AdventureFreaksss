@@ -163,9 +163,9 @@ export default function AdminQuizEditor({
               )}
             </div>
           ))}
-          {/* <div className="add-question-button" onClick={handleAddQuestion}>
+          <div className="add-question-button" onClick={handleAddQuestion}>
             + Add New Question
-          </div> */}
+          </div>
         </div>
 
         <div className="question-content">
