@@ -1,7 +1,7 @@
 import { connectToDatabase } from "../../../../lib/mongodb";
 import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
-
+export const runtime = "nodejs";
 // GET all quizzes
 export async function GET() {
   try {

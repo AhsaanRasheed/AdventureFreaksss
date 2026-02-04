@@ -1,7 +1,7 @@
 // /app/api/create-payment-intent/route.js
 import { NextResponse } from "next/server";
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-
+export const runtime = "nodejs";
 // Example static coupons. In production, use a DB.
 const VALID_COUPONS = {
   ADV15: 0.15, 

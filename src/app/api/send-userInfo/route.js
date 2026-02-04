@@ -1,7 +1,7 @@
 // import { text } from "body-parser";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
-
+export const runtime = "nodejs";
 export async function POST(req) {
   try {
     const { userInfo } = await req.json();

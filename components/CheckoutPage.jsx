@@ -73,7 +73,7 @@ const CheckoutPage = ({ amount }) => {
         elements,
         clientSecret,
         confirmParams: {
-          return_url: "http://quiz.adventurefreaksss.com/success?status=success",
+          return_url: "http://localhost:3001/success?status=success",
         },
 
         // confirmParams: {
